@@ -8,12 +8,12 @@ import (
 	"testing"
 
 	"github.com/goccy/go-yaml"
-	"github.com/indaco/verso/internal/config"
+	"github.com/indaco/sley/internal/config"
 )
 
 func TestAddExtensionToConfig_Success(t *testing.T) {
 	tmpDir := t.TempDir()
-	configPath := filepath.Join(tmpDir, ".verso.yaml")
+	configPath := filepath.Join(tmpDir, ".sley.yaml")
 
 	initial := []byte("path: .version\nextensions: []\n")
 	if err := os.WriteFile(configPath, initial, 0644); err != nil {
@@ -22,7 +22,7 @@ func TestAddExtensionToConfig_Success(t *testing.T) {
 
 	extension := config.ExtensionConfig{
 		Name:    "commit-parser",
-		Path:    ".verso-extensions/commit-parser",
+		Path:    ".sley-extensions/commit-parser",
 		Enabled: true,
 	}
 
@@ -68,13 +68,13 @@ func TestAddExtensionToConfig_Duplicate(t *testing.T) {
 		}
 	})
 
-	configPath := filepath.Join(tmpDir, ".verso.yaml")
+	configPath := filepath.Join(tmpDir, ".sley.yaml")
 	// Initial config with one plugin
 	initial := []byte(`
 path: .version
 extensions:
   - name: test-extension
-    path: .verso-extensions/test-extension
+    path: .sley-extensions/test-extension
     enabled: true
 `)
 	if err := os.WriteFile(configPath, initial, 0644); err != nil {
@@ -83,7 +83,7 @@ extensions:
 
 	extension := config.ExtensionConfig{
 		Name:    "test-extension",
-		Path:    ".verso-extensions/test-extension",
+		Path:    ".sley-extensions/test-extension",
 		Enabled: true,
 	}
 
@@ -126,7 +126,7 @@ func TestAddExtensionToConfig_ReadFileError(t *testing.T) {
 
 func TestAddExtensionToConfig_UnmarshalError(t *testing.T) {
 	tmp := t.TempDir()
-	configPath := filepath.Join(tmp, ".verso.yaml")
+	configPath := filepath.Join(tmp, ".sley.yaml")
 
 	badYAML := []byte(": invalid yaml")
 	if err := os.WriteFile(configPath, badYAML, 0644); err != nil {
@@ -147,7 +147,7 @@ func TestAddExtensionToConfig_UnmarshalError(t *testing.T) {
 func TestAddExtensionToConfig_MarshalError(t *testing.T) {
 	// Create a temporary file with a valid config
 	tmp := t.TempDir()
-	configPath := filepath.Join(tmp, ".verso.yaml")
+	configPath := filepath.Join(tmp, ".sley.yaml")
 	initial := []byte(`path: .version`)
 	if err := os.WriteFile(configPath, initial, 0644); err != nil {
 		t.Fatal(err)
@@ -164,7 +164,7 @@ func TestAddExtensionToConfig_MarshalError(t *testing.T) {
 
 	err := AddExtensionToConfig(configPath, config.ExtensionConfig{
 		Name:    "fail-marshaling",
-		Path:    ".verso-extensions/fail",
+		Path:    ".sley-extensions/fail",
 		Enabled: true,
 	})
 
@@ -175,7 +175,7 @@ func TestAddExtensionToConfig_MarshalError(t *testing.T) {
 
 func TestAddExtensionToConfig_WriteFileError(t *testing.T) {
 	tmp := t.TempDir()
-	configPath := filepath.Join(tmp, ".verso.yaml")
+	configPath := filepath.Join(tmp, ".sley.yaml")
 
 	initial := []byte("path: .version\nextensions: []\n")
 	if err := os.WriteFile(configPath, initial, 0444); err != nil {

@@ -9,6 +9,10 @@ plugins:
     # - "unified": Appends to CHANGELOG.md
     # - "both": Creates both versioned files and updates CHANGELOG.md
     mode: "versioned"
+    # Formats:
+    # - "grouped"
+    # - "keepachangelog": Keep a Changelog spec
+    format: "grouped"
     changes-dir: ".changes"
     changelog-path: "CHANGELOG.md"
 

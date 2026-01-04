@@ -1,4 +1,4 @@
-// Package apperrors defines custom error types for the verso application.
+// Package apperrors defines custom error types for the sley application.
 // These typed errors enable proper error handling with errors.Is and errors.As
 // without coupling internal packages to the CLI framework.
 package apperrors

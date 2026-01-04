@@ -3,7 +3,7 @@ package hooks
 import (
 	"fmt"
 
-	"github.com/indaco/verso/internal/config"
+	"github.com/indaco/sley/internal/config"
 )
 
 var LoadPreReleaseHooksFromConfigFn = loadPreReleaseHooksFromConfig

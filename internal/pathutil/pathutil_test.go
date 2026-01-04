@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/indaco/verso/internal/apperrors"
+	"github.com/indaco/sley/internal/apperrors"
 )
 
 func TestValidatePath(t *testing.T) {

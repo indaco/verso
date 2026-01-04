@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/indaco/verso/internal/apperrors"
+	"github.com/indaco/sley/internal/apperrors"
 )
 
 // Default timeouts for command execution.

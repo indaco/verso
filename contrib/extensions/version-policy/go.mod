@@ -1,3 +1,3 @@
-module github.com/indaco/verso/contrib/extensions/version-policy
+module github.com/indaco/sley/contrib/extensions/version-policy
 
-go 1.21
+go 1.25

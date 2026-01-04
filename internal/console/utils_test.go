@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/indaco/verso/internal/testutils"
+	"github.com/indaco/sley/internal/testutils"
 )
 
 func TestPrintSuccess(t *testing.T) {

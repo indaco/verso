@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/indaco/verso/internal/testutils"
+	"github.com/indaco/sley/internal/testutils"
 )
 
 func TestRunPreReleaseHooks(t *testing.T) {

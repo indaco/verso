@@ -15,13 +15,13 @@ This extension validates that git commits follow the conventional commit format 
 **From local path:**
 
 ```bash
-verso extension install --path ./contrib/extensions/commit-validator
+sley extension install --path ./contrib/extensions/commit-validator
 ```
 
 **From URL (after cloning the repo):**
 
 ```bash
-verso extension install --url https://github.com/indaco/verso
+sley extension install --url https://github.com/indaco/sley
 # Then copy from contrib/extensions/commit-validator
 ```
 
@@ -30,13 +30,13 @@ verso extension install --url https://github.com/indaco/verso
 Once installed and enabled, the extension runs automatically before version bumps:
 
 ```bash
-verso bump patch
+sley bump patch
 # Validates all commits since last tag before bumping
 ```
 
 ## Configuration
 
-Add configuration to your `.verso.yaml`:
+Add configuration to your `.sley.yaml`:
 
 ### Basic Configuration (Default)
 
@@ -207,7 +207,7 @@ The extension fails (blocks the bump) if:
 This extension pairs well with the built-in `commitparser` plugin:
 
 ```yaml
-# .verso.yaml
+# .sley.yaml
 plugins:
   commit-parser: true
 

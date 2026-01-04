@@ -3,7 +3,7 @@ package plugins
 import (
 	"testing"
 
-	"github.com/indaco/verso/internal/testutils"
+	"github.com/indaco/sley/internal/testutils"
 )
 
 func TestRegisterPluginMeta(t *testing.T) {

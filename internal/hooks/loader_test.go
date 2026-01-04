@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/indaco/verso/internal/config"
-	"github.com/indaco/verso/internal/testutils"
+	"github.com/indaco/sley/internal/config"
+	"github.com/indaco/sley/internal/testutils"
 )
 
 func TestLoadPreReleaseHooksFromConfig(t *testing.T) {

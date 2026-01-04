@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/indaco/verso/internal/core"
-	"github.com/indaco/verso/internal/workspace"
+	"github.com/indaco/sley/internal/core"
+	"github.com/indaco/sley/internal/workspace"
 )
 
 func TestNewShowOperation(t *testing.T) {

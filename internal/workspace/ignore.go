@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// IgnoreFile represents a parsed .versoignore file.
+// IgnoreFile represents a parsed .sleyignore file.
 type IgnoreFile struct {
 	patterns []string
 }
@@ -40,7 +40,7 @@ func (i *IgnoreFile) Patterns() []string {
 	return append([]string(nil), i.patterns...)
 }
 
-// parseIgnoreContent parses .versoignore content and returns patterns.
+// parseIgnoreContent parses .sleyignore content and returns patterns.
 func parseIgnoreContent(content string) []string {
 	var patterns []string
 	lines := strings.SplitSeq(content, "\n")

@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/indaco/verso/internal/core"
-	"github.com/indaco/verso/internal/semver"
-	"github.com/indaco/verso/internal/workspace"
+	"github.com/indaco/sley/internal/core"
+	"github.com/indaco/sley/internal/semver"
+	"github.com/indaco/sley/internal/workspace"
 )
 
 // SetOperation sets the version of a module to a specific value.

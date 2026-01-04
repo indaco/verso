@@ -8,9 +8,7 @@ Built-in, **disabled by default**
 
 ## Plugin vs Extension
 
-The built-in plugin supports multiple changelog formats making the shell extension obsolete.
-
-**Note**: The shell extension at `contrib/extensions/changelog-generator` has been deprecated in favor of the built-in plugin's "keepachangelog" format option.
+The built-in plugin supports multiple changelog formats.
 
 ## Features
 
@@ -35,7 +33,7 @@ The built-in plugin supports multiple changelog formats making the shell extensi
 
 ## Configuration
 
-Enable and configure in `.verso.yaml`:
+Enable and configure in `.sley.yaml`:
 
 ```yaml
 plugins:
@@ -348,7 +346,7 @@ Once enabled, the plugin works automatically with all bump commands.
 ### Basic Usage
 
 ```bash
-verso bump patch
+sley bump patch
 # Output: Version bumped from 1.2.3 to 1.2.4
 # Creates: .changes/v1.2.4.md
 ```
@@ -356,7 +354,7 @@ verso bump patch
 ### With Auto Bump
 
 ```bash
-verso bump auto
+sley bump auto
 # 1. Analyzes commits to determine bump type
 # 2. Bumps version
 # 3. Generates changelog entry
@@ -485,7 +483,7 @@ plugins:
 Workflow:
 
 ```bash
-verso bump auto
+sley bump auto
 # 1. commit-parser analyzes commits -> determines bump type
 # 2. Version bumped
 # 3. changelog-generator creates entry with same commits

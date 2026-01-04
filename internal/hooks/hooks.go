@@ -3,7 +3,7 @@ package hooks
 import (
 	"fmt"
 
-	"github.com/indaco/verso/internal/console"
+	"github.com/indaco/sley/internal/console"
 )
 
 type PreReleaseHook interface {

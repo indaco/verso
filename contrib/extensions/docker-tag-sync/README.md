@@ -19,12 +19,12 @@ Tags Docker images with the new version after successful version bumps.
 ## Installation
 
 ```bash
-verso extension install --path ./contrib/extensions/docker-tag-sync
+sley extension install --path ./contrib/extensions/docker-tag-sync
 ```
 
 ## Configuration
 
-Add to your `.verso.yaml`:
+Add to your `.sley.yaml`:
 
 ```yaml
 extensions:
@@ -65,7 +65,7 @@ extensions:
 docker build -t myapp:latest .
 
 # Bump version - automatically tags myapp:v1.2.4
-verso bump patch
+sley bump patch
 ```
 
 ### With Registry Push
@@ -107,14 +107,14 @@ Example GitHub Actions workflow:
   run: docker build -t myapp:latest .
 
 - name: Bump version and tag image
-  run: verso bump patch
+  run: sley bump patch
 
 - name: Push to registry
   run: |
     docker push myapp:v${{ steps.version.outputs.new }}
 ```
 
-Or configure push in `.verso.yaml` for automatic pushing:
+Or configure push in `.sley.yaml` for automatic pushing:
 
 ```yaml
 extensions:
@@ -148,7 +148,7 @@ Build your Docker image before running the version bump:
 
 ```bash
 docker build -t myapp:latest .
-verso bump patch
+sley bump patch
 ```
 
 ### "Failed to push"

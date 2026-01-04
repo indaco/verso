@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/indaco/verso/internal/config"
-	"github.com/indaco/verso/internal/core"
-	"github.com/indaco/verso/internal/semver"
+	"github.com/indaco/sley/internal/config"
+	"github.com/indaco/sley/internal/core"
+	"github.com/indaco/sley/internal/semver"
 )
 
 // DetectionMode indicates how the CLI should operate based on discovered .version files.
@@ -146,7 +146,7 @@ func (d *Detector) DiscoverModules(root string) ([]*Module, error) {
 		return nil, fmt.Errorf("failed to load ignore patterns: %w", err)
 	}
 
-	// Merge config excludes with .versoignore patterns
+	// Merge config excludes with .sleyignore patterns
 	excludes := d.cfg.GetExcludePatterns()
 	allPatterns := make([]string, 0, len(excludes)+len(ignorePatterns))
 	allPatterns = append(allPatterns, excludes...)
@@ -324,21 +324,21 @@ func (d *Detector) createModuleFromConfig(moduleConfig config.ModuleConfig, vers
 	}, nil
 }
 
-// loadIgnorePatterns loads patterns from .versoignore file if it exists.
+// loadIgnorePatterns loads patterns from .sleyignore file if it exists.
 func (d *Detector) loadIgnorePatterns(root string) ([]string, error) {
-	ignorePath := filepath.Join(root, ".versoignore")
+	ignorePath := filepath.Join(root, ".sleyignore")
 	data, err := d.fs.ReadFile(ignorePath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("failed to read .versoignore: %w", err)
+		return nil, fmt.Errorf("failed to read .sleyignore: %w", err)
 	}
 
 	return parseIgnoreFile(string(data)), nil
 }
 
-// parseIgnoreFile parses a .versoignore file and returns the patterns.
+// parseIgnoreFile parses a .sleyignore file and returns the patterns.
 func parseIgnoreFile(content string) []string {
 	var patterns []string
 	lines := strings.SplitSeq(content, "\n")
@@ -365,7 +365,7 @@ type patternMatcher struct {
 
 // newPatternMatcher creates a new pattern matcher with the given patterns.
 func newPatternMatcher(patterns []string) *patternMatcher {
-	// Convert patterns to .versoignore format
+	// Convert patterns to .sleyignore format
 	content := strings.Join(patterns, "\n")
 	return &patternMatcher{
 		ignoreFile: NewIgnoreFile(content),

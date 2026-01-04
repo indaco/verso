@@ -70,6 +70,7 @@ plugins:
   changelog-generator:
     enabled: true
     mode: "both" # "versioned", "unified", or "both"
+    format: "grouped" # or "keepachangelog" for Keep a Changelog spec
     changes-dir: ".changes"
     changelog-path: "CHANGELOG.md"
     repository:

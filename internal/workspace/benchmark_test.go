@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/indaco/verso/internal/config"
-	"github.com/indaco/verso/internal/core"
+	"github.com/indaco/sley/internal/config"
+	"github.com/indaco/sley/internal/core"
 )
 
 // setupBenchmarkFS creates a mock filesystem with the specified number of modules.

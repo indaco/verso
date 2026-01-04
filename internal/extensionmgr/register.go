@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/indaco/verso/internal/config"
-	"github.com/indaco/verso/internal/extensions"
+	"github.com/indaco/sley/internal/config"
+	"github.com/indaco/sley/internal/extensions"
 )
 
 var (
@@ -37,24 +37,24 @@ func registerLocalExtension(localPath, configPath, extensionDirectory string) er
 		if err != nil {
 			return fmt.Errorf("failed to get user home directory: %w", err)
 		}
-		baseDir = filepath.Join(homeDir, ".verso-extensions")
+		baseDir = filepath.Join(homeDir, ".sley-extensions")
 	} else {
-		baseDir = filepath.Join(baseDir, ".verso-extensions")
+		baseDir = filepath.Join(baseDir, ".sley-extensions")
 	}
 
 	destPath := filepath.Join(baseDir, manifest.Name)
 
 	// 4. Resolve and validate config path
 	if configPath == "" {
-		configPath = ".verso.yaml"
+		configPath = ".sley.yaml"
 	}
 	absConfigPath, _ := filepath.Abs(configPath)
 
 	if _, err := os.Stat(absConfigPath); os.IsNotExist(err) {
 		fmt.Fprintf(os.Stderr, `
-To enable extension support, create a .verso.yaml file in your project root. For example:
+To enable extension support, create a .sley.yaml file in your project root. For example:
 
-    echo "extensions: []" > .verso.yaml
+    echo "extensions: []" > .sley.yaml
 
 Then run this command again.
 `)

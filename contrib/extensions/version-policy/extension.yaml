@@ -1,8 +1,8 @@
 name: version-policy
 version: 1.0.0
 description: Enforces versioning policies and organizational rules
-author: verso
-repository: https://github.com/indaco/verso/tree/main/contrib/extensions/version-policy
+author: sley
+repository: https://github.com/indaco/sley/tree/main/contrib/extensions/version-policy
 entry: version-policy
 hooks:
   - validate

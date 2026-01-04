@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/indaco/verso/internal/config"
-	"github.com/indaco/verso/internal/extensions"
+	"github.com/indaco/sley/internal/config"
+	"github.com/indaco/sley/internal/extensions"
 )
 
 func TestHasHook(t *testing.T) {

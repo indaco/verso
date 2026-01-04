@@ -3,15 +3,15 @@ package plugins
 import (
 	"testing"
 
-	"github.com/indaco/verso/internal/config"
-	"github.com/indaco/verso/internal/plugins/auditlog"
-	"github.com/indaco/verso/internal/plugins/changeloggenerator"
-	"github.com/indaco/verso/internal/plugins/changelogparser"
-	"github.com/indaco/verso/internal/plugins/commitparser"
-	"github.com/indaco/verso/internal/plugins/dependencycheck"
-	"github.com/indaco/verso/internal/plugins/releasegate"
-	"github.com/indaco/verso/internal/plugins/tagmanager"
-	"github.com/indaco/verso/internal/plugins/versionvalidator"
+	"github.com/indaco/sley/internal/config"
+	"github.com/indaco/sley/internal/plugins/auditlog"
+	"github.com/indaco/sley/internal/plugins/changeloggenerator"
+	"github.com/indaco/sley/internal/plugins/changelogparser"
+	"github.com/indaco/sley/internal/plugins/commitparser"
+	"github.com/indaco/sley/internal/plugins/dependencycheck"
+	"github.com/indaco/sley/internal/plugins/releasegate"
+	"github.com/indaco/sley/internal/plugins/tagmanager"
+	"github.com/indaco/sley/internal/plugins/versionvalidator"
 )
 
 func TestRegisterConfiguredPlugins_WithCommitParser(t *testing.T) {

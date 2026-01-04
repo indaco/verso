@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/goccy/go-yaml"
-	"github.com/indaco/verso/internal/config"
+	"github.com/indaco/sley/internal/config"
 )
 
 var (

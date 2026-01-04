@@ -1,8 +1,8 @@
 name: package-sync
 version: 1.0.0
 description: Synchronizes version to package.json and other JSON files
-author: verso
-repository: https://github.com/indaco/verso/tree/main/contrib/extensions/package-sync
+author: sley
+repository: https://github.com/indaco/sley/tree/main/contrib/extensions/package-sync
 entry: hook.js
 hooks:
   - post-bump

@@ -17,11 +17,11 @@ func TestParseRemoteURL(t *testing.T) {
 		// GitHub
 		{
 			name:         "GitHub SSH format",
-			url:          "git@github.com:indaco/verso.git",
+			url:          "git@github.com:indaco/sley.git",
 			wantProvider: "github",
 			wantHost:     "github.com",
 			wantOwner:    "indaco",
-			wantRepo:     "verso",
+			wantRepo:     "sley",
 		},
 		{
 			name:         "GitHub SSH format without .git",
@@ -33,11 +33,11 @@ func TestParseRemoteURL(t *testing.T) {
 		},
 		{
 			name:         "GitHub HTTPS format",
-			url:          "https://github.com/indaco/verso.git",
+			url:          "https://github.com/indaco/sley.git",
 			wantProvider: "github",
 			wantHost:     "github.com",
 			wantOwner:    "indaco",
-			wantRepo:     "verso",
+			wantRepo:     "sley",
 		},
 		{
 			name:         "GitHub HTTPS format without .git",

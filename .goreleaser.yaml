@@ -5,9 +5,9 @@ before:
     - go mod tidy
 
 builds:
-  - id: verso
-    main: ./cmd/verso
-    binary: verso
+  - id: sley
+    main: ./cmd/sley
+    binary: sley
     env:
       - CGO_ENABLED=0
     flags:
