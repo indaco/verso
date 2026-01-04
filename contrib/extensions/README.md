@@ -1,6 +1,6 @@
-# verso Extensions
+# sley Extensions
 
-This directory contains ready-to-use extensions for verso. These extensions can be installed directly or used as templates for your own extensions.
+This directory contains ready-to-use extensions for sley. These extensions can be installed directly or used as templates for your own extensions.
 
 For the complete extension authoring guide, see [docs/EXTENSIONS.md](../../docs/EXTENSIONS.md).
 
@@ -96,7 +96,7 @@ Extensions work seamlessly with built-in plugins for complete automation.
 The `commitparser` plugin analyzes commits, extensions handle the rest:
 
 ```yaml
-# .verso.yaml
+# .sley.yaml
 plugins:
   commit-parser: true # Built-in commit analysis
 
@@ -110,7 +110,7 @@ extensions:
 ```
 
 ```bash
-verso bump auto
+sley bump auto
 # 1. commit-validator: Ensures commits are valid
 # 2. commitparser: Analyzes commits -> determines bump type
 # 3. Version bumped
@@ -125,18 +125,18 @@ See [docs/PLUGINS.md](../../docs/PLUGINS.md) for detailed plugin documentation.
 ### From Local Path
 
 ```bash
-verso extension install --path ./contrib/extensions/git-tagger
+sley extension install --path ./contrib/extensions/git-tagger
 ```
 
 ### From URL
 
 ```bash
-verso extension install --url https://github.com/user/my-extension
+sley extension install --url https://github.com/user/my-extension
 ```
 
 ### Configuration
 
-After installation, configure in `.verso.yaml`:
+After installation, configure in `.sley.yaml`:
 
 ```yaml
 extensions:
@@ -151,10 +151,10 @@ extensions:
 
 ```bash
 # List installed extensions
-verso extension list
+sley extension list
 
 # Remove an extension
-verso extension remove git-tagger
+sley extension remove git-tagger
 ```
 
 ## Building Go Extensions
@@ -190,4 +190,4 @@ Want to contribute an extension?
 
 ## License
 
-All extensions in this directory are licensed under the same terms as verso.
+All extensions in this directory are licensed under the same terms as sley.

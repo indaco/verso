@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/indaco/verso/internal/core"
+	"github.com/indaco/sley/internal/core"
 )
 
 func TestVersionManager_Read(t *testing.T) {

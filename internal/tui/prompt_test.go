@@ -3,7 +3,7 @@ package tui
 import (
 	"testing"
 
-	"github.com/indaco/verso/internal/workspace"
+	"github.com/indaco/sley/internal/workspace"
 )
 
 func TestNewModulePrompt(t *testing.T) {

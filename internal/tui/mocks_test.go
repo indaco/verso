@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/indaco/verso/internal/workspace"
+	"github.com/indaco/sley/internal/workspace"
 )
 
 func TestMockPrompter_PromptModuleSelection(t *testing.T) {

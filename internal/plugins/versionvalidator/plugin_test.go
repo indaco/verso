@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/indaco/verso/internal/semver"
+	"github.com/indaco/sley/internal/semver"
 )
 
 func TestVersionValidatorPlugin_Name(t *testing.T) {

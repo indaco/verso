@@ -1,6 +1,6 @@
 # Package Sync Extension
 
-This extension automatically synchronizes version numbers to package.json and other JSON files after version bumps using verso.
+This extension automatically synchronizes version numbers to package.json and other JSON files after version bumps using sley.
 
 ## Features
 
@@ -15,13 +15,13 @@ This extension automatically synchronizes version numbers to package.json and ot
 **From local path:**
 
 ```bash
-verso extension install --path ./contrib/extensions/package-sync
+sley extension install --path ./contrib/extensions/package-sync
 ```
 
 **From URL (after cloning the repo):**
 
 ```bash
-verso extension install --url https://github.com/indaco/verso
+sley extension install --url https://github.com/indaco/sley
 # Then copy from contrib/extensions/package-sync
 ```
 
@@ -30,13 +30,13 @@ verso extension install --url https://github.com/indaco/verso
 Once installed and enabled, the extension will automatically run on every version bump:
 
 ```bash
-verso bump patch
+sley bump patch
 # Updates package.json version field
 ```
 
 ## Configuration
 
-Add configuration to your `.verso.yaml`:
+Add configuration to your `.sley.yaml`:
 
 ### Basic Configuration (Default)
 
@@ -88,7 +88,7 @@ extensions:
 Update package.json only:
 
 ```bash
-verso bump minor
+sley bump minor
 # package.json version: 1.2.3 -> 1.3.0
 ```
 

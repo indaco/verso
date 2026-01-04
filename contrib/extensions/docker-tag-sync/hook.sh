@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-# Docker Tag Sync Extension for verso
+# Docker Tag Sync Extension for sley
 # Tags and optionally pushes Docker images with the new version after bumps
 #
-# Configuration options (via .verso.yaml):
+# Configuration options (via .sley.yaml):
 #   image: Image name (required, e.g., "myapp" or "registry.io/org/myapp")
 #   source-tag: Source tag to re-tag (default: "latest")
 #   prefix: Version prefix for the tag (default: "v")

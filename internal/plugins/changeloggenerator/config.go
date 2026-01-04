@@ -1,6 +1,6 @@
 package changeloggenerator
 
-import "github.com/indaco/verso/internal/config"
+import "github.com/indaco/sley/internal/config"
 
 // Config holds the internal configuration for the changelog generator plugin.
 type Config struct {

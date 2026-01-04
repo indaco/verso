@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Git Tagger Extension for verso
+Git Tagger Extension for sley
 Creates annotated git tags after version bumps
 """
 
@@ -13,11 +13,7 @@ def run_git_command(args, cwd):
     """Execute a git command and return the result."""
     try:
         result = subprocess.run(
-            ["git"] + args,
-            cwd=cwd,
-            capture_output=True,
-            text=True,
-            check=True
+            ["git"] + args, cwd=cwd, capture_output=True, text=True, check=True
         )
         return True, result.stdout.strip()
     except subprocess.CalledProcessError as e:
@@ -42,7 +38,9 @@ def create_tag(version, config, project_root):
     # Check if tag already exists
     success, _ = run_git_command(["tag", "-l", tag_name], project_root)
     if success:
-        existing_tags_success, existing_tags = run_git_command(["tag", "-l", tag_name], project_root)
+        existing_tags_success, existing_tags = run_git_command(
+            ["tag", "-l", tag_name], project_root
+        )
         if existing_tags_success and existing_tags:
             return False, f"Tag {tag_name} already exists"
 
@@ -87,7 +85,7 @@ def main():
             result = {
                 "success": False,
                 "message": "Missing required field: version",
-                "data": {}
+                "data": {},
             }
             print(json.dumps(result))
             sys.exit(1)
@@ -96,7 +94,7 @@ def main():
             result = {
                 "success": False,
                 "message": "Missing required field: project_root",
-                "data": {}
+                "data": {},
             }
             print(json.dumps(result))
             sys.exit(1)
@@ -105,11 +103,7 @@ def main():
         success, message = create_tag(version, config, project_root)
 
         # Return result
-        result = {
-            "success": success,
-            "message": message,
-            "data": {}
-        }
+        result = {"success": success, "message": message, "data": {}}
         print(json.dumps(result))
         sys.exit(0 if success else 1)
 
@@ -117,7 +111,7 @@ def main():
         result = {
             "success": False,
             "message": f"Invalid JSON input: {str(e)}",
-            "data": {}
+            "data": {},
         }
         print(json.dumps(result))
         sys.exit(1)
@@ -125,7 +119,7 @@ def main():
         result = {
             "success": False,
             "message": f"Unexpected error: {str(e)}",
-            "data": {}
+            "data": {},
         }
         print(json.dumps(result))
         sys.exit(1)

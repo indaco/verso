@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/indaco/verso/internal/config"
+	"github.com/indaco/sley/internal/config"
 )
 
 // setupTestExtension creates a test extension in the given directory
@@ -42,7 +42,7 @@ echo '{"success": true, "message": "Lifecycle test hook executed"}'
 	}
 }
 
-// setupTestProject creates a test project directory with .verso.yaml
+// setupTestProject creates a test project directory with .sley.yaml
 func setupTestProject(t *testing.T, projectDir string) string {
 	t.Helper()
 
@@ -50,7 +50,7 @@ func setupTestProject(t *testing.T, projectDir string) string {
 		t.Fatalf("failed to create project directory: %v", err)
 	}
 
-	configPath := filepath.Join(projectDir, ".verso.yaml")
+	configPath := filepath.Join(projectDir, ".sley.yaml")
 	initialConfig := `path: .version
 extensions: []
 `
@@ -65,7 +65,7 @@ extensions: []
 func verifyExtensionInstalled(t *testing.T, tmpDir, extensionName string) {
 	t.Helper()
 
-	extensionDir := filepath.Join(tmpDir, ".verso-extensions")
+	extensionDir := filepath.Join(tmpDir, ".sley-extensions")
 	installedExtPath := filepath.Join(extensionDir, extensionName)
 
 	if _, err := os.Stat(installedExtPath); os.IsNotExist(err) {

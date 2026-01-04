@@ -391,12 +391,12 @@ var (
 
 func loadConfig() (*Config, error) {
 	// Highest priority: ENV variable
-	if envPath := os.Getenv("VERSO_PATH"); envPath != "" {
+	if envPath := os.Getenv("SLEY_PATH"); envPath != "" {
 		return &Config{Path: envPath}, nil
 	}
 
 	// Second priority: YAML file
-	data, err := os.ReadFile(".verso.yaml")
+	data, err := os.ReadFile(".sley.yaml")
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil // fallback to default
@@ -436,7 +436,7 @@ func NormalizeVersionPath(path string) string {
 const ConfigFilePerm = 0600
 
 func saveConfig(cfg *Config) error {
-	file, err := openFileFn(".verso.yaml", os.O_RDWR|os.O_CREATE|os.O_TRUNC, ConfigFilePerm)
+	file, err := openFileFn(".sley.yaml", os.O_RDWR|os.O_CREATE|os.O_TRUNC, ConfigFilePerm)
 	if err != nil {
 		return fmt.Errorf("failed to open config file: %w", err)
 	}

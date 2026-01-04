@@ -12,8 +12,8 @@ To set up a development environment for this repository, you can use [devbox](ht
 2. Clone this repository to your local machine.
 
    ```bash
-   git clone https://github.com/indaco/verso.git
-   cd verso
+   git clone https://github.com/indaco/sley.git
+   cd sley
    ```
 
 3. Run `devbox install` to install all dependencies specified in `devbox.json`.
@@ -75,7 +75,7 @@ just help
 | `just modernize`  | Run go-modernize with auto-fix             |
 | `just check`      | Run modernize, lint, and test              |
 | `just lint`       | Run golangci-lint                          |
-| `just build`      | Build the binary to build/semver           |
+| `just build`      | Build the binary to build/sley             |
 | `just install`    | Install the binary using Go install        |
 
 ### Quick Start

@@ -1,6 +1,6 @@
 # Git Tagger Extension
 
-This extension automatically creates git tags after version bumps using verso.
+This extension automatically creates git tags after version bumps using sley.
 
 ## Features
 
@@ -16,13 +16,13 @@ This extension automatically creates git tags after version bumps using verso.
 **From local path:**
 
 ```bash
-verso extension install --path ./contrib/extensions/git-tagger
+sley extension install --path ./contrib/extensions/git-tagger
 ```
 
 **From URL (after cloning the repo):**
 
 ```bash
-verso extension install --url https://github.com/indaco/verso
+sley extension install --url https://github.com/indaco/sley
 # Then copy from contrib/extensions/git-tagger
 ```
 
@@ -31,13 +31,13 @@ verso extension install --url https://github.com/indaco/verso
 Once installed and enabled, the extension will automatically run on every version bump:
 
 ```bash
-verso bump patch
+sley bump patch
 # Creates tag v1.2.3
 ```
 
 ## Configuration
 
-Add configuration to your `.verso.yaml`:
+Add configuration to your `.sley.yaml`:
 
 ```yaml
 extensions:
@@ -68,7 +68,7 @@ extensions:
 Default configuration creates annotated tags with "v" prefix:
 
 ```bash
-verso bump minor
+sley bump minor
 # Creates tag: v1.3.0
 # Message: Release 1.3.0
 ```

@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/indaco/verso/internal/core"
-	"github.com/indaco/verso/internal/testutils"
+	"github.com/indaco/sley/internal/core"
+	"github.com/indaco/sley/internal/testutils"
 )
 
 // mockGitTagReader implements GitTagReader for testing.

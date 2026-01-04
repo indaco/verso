@@ -1,4 +1,4 @@
-module github.com/indaco/verso
+module github.com/indaco/sley
 
 go 1.25
 

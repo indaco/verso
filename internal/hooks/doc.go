@@ -1,4 +1,4 @@
-// Package hooks provides pre-release hook execution for verso.
+// Package hooks provides pre-release hook execution for sley.
 //
 // Hooks are commands that run before version bumps, allowing for
 // validation, testing, or other automated checks before a version
@@ -18,7 +18,7 @@
 //
 // # Configuration
 //
-// Hooks are configured in .verso.yaml:
+// Hooks are configured in .sley.yaml:
 //
 //	pre-release-hooks:
 //	  - command: "make test"

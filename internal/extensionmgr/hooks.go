@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"slices"
 
-	"github.com/indaco/verso/internal/config"
-	"github.com/indaco/verso/internal/console"
-	"github.com/indaco/verso/internal/extensions"
+	"github.com/indaco/sley/internal/config"
+	"github.com/indaco/sley/internal/console"
+	"github.com/indaco/sley/internal/extensions"
 )
 
 // HookType represents the different hook points available in the extension system

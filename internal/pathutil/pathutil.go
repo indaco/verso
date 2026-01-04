@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/indaco/verso/internal/apperrors"
+	"github.com/indaco/sley/internal/apperrors"
 )
 
 // ValidatePath ensures a path is safe and within expected boundaries.

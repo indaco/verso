@@ -23,7 +23,7 @@ Built-in, **disabled by default**
 
 ## Configuration
 
-Enable and configure in `.verso.yaml`:
+Enable and configure in `.sley.yaml`:
 
 ```yaml
 plugins:
@@ -62,7 +62,7 @@ Once enabled, the plugin works automatically with all bump commands.
 
 ```bash
 # Bump patch version and create tag
-verso bump patch
+sley bump patch
 # Output: Version bumped from 1.2.3 to 1.2.4
 # Output: Created tag: v1.2.4
 ```
@@ -71,7 +71,7 @@ verso bump patch
 
 ```bash
 # With push: true in config
-verso bump minor
+sley bump minor
 # Output: Version bumped from 1.2.4 to 1.3.0
 # Output: Created tag: v1.3.0
 # Output: Pushed tag: v1.3.0
@@ -80,7 +80,7 @@ verso bump minor
 ### With Pre-release
 
 ```bash
-verso bump minor --pre alpha.1
+sley bump minor --pre alpha.1
 # Output: Version bumped from 1.2.3 to 1.3.0-alpha.1
 # Output: Created tag: v1.3.0-alpha.1
 ```
@@ -91,7 +91,7 @@ The plugin validates tag availability **before** bumping:
 
 ```bash
 # If v1.3.0 already exists:
-verso bump minor
+sley bump minor
 # Error: tag v1.3.0 already exists
 # Version file remains unchanged
 ```
@@ -208,7 +208,7 @@ plugins:
 Workflow:
 
 ```bash
-verso bump auto
+sley bump auto
 # 1. commit-parser analyzes: feat commits -> minor bump
 # 2. tag-manager validates: v1.3.0 doesn't exist
 # 3. Version: 1.2.3 -> 1.3.0
@@ -244,7 +244,7 @@ Execution order:
 ### Tag Already Exists
 
 ```bash
-verso bump patch
+sley bump patch
 # Error: tag v1.2.4 already exists
 ```
 
@@ -253,7 +253,7 @@ verso bump patch
 ### Git Not Available
 
 ```bash
-verso bump patch
+sley bump patch
 # Error: git command failed: exec: "git": executable file not found
 ```
 
@@ -262,7 +262,7 @@ verso bump patch
 ### Push Failed
 
 ```bash
-verso bump patch
+sley bump patch
 # Output: Created tag: v1.2.4
 # Error: failed to push tag: remote rejected
 ```

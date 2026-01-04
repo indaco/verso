@@ -28,7 +28,7 @@ The plugin runs validation checks **before** any version bump operation. If any 
 
 ## Configuration
 
-Enable and configure in `.verso.yaml`:
+Enable and configure in `.sley.yaml`:
 
 ```yaml
 plugins:
@@ -65,12 +65,12 @@ plugins:
 
 ```bash
 # With uncommitted changes
-$ verso bump patch
+$ sley bump patch
 Error: release-gate: uncommitted changes detected. Commit or stash changes before bumping
 
 # After committing changes
 $ git add -A && git commit -m "feat: add feature"
-$ verso bump patch
+$ sley bump patch
 Version bumped from 1.2.3 to 1.2.4
 ```
 
@@ -90,12 +90,12 @@ plugins:
 ```bash
 # On feature branch
 $ git checkout -b feature/new-feature
-$ verso bump minor
+$ sley bump minor
 Error: release-gate: bumps not allowed from branch "feature/new-feature". Allowed branches: [main release/*]
 
 # On allowed branch
 $ git checkout main
-$ verso bump minor
+$ sley bump minor
 Version bumped from 1.2.3 to 1.3.0
 ```
 
@@ -116,7 +116,7 @@ plugins:
 ```bash
 # On blocked branch
 $ git checkout dev
-$ verso bump patch
+$ sley bump patch
 Error: release-gate: bumps not allowed from branch "dev" (blocked branches: [dev develop experimental/*])
 
 # Blocked branches take precedence even if in allowed list
@@ -147,12 +147,12 @@ $ git log --oneline -5
 abc123 WIP: testing feature
 def456 feat: add feature
 
-$ verso bump patch
+$ sley bump patch
 Error: release-gate: WIP commit detected in recent history: "WIP: testing feature". Complete your work before releasing
 
 # After cleaning up commits
 $ git rebase -i HEAD~2  # squash or reword WIP commits
-$ verso bump patch
+$ sley bump patch
 Version bumped from 1.2.3 to 1.2.4
 ```
 
@@ -218,7 +218,7 @@ This order ensures quality standards are met before any version-specific validat
 ### Development Workflow
 
 ```yaml
-# .verso.yaml for a typical development workflow
+# .sley.yaml for a typical development workflow
 plugins:
   release-gate:
     enabled: true
@@ -235,10 +235,10 @@ For monorepos, the release gate applies to each module independently:
 
 ```bash
 # All modules must pass release gates
-$ verso bump minor --all
+$ sley bump minor --all
 
 # Single module bump
-$ verso bump patch --module api
+$ sley bump patch --module api
 ```
 
 ### CI/CD Integration
@@ -268,7 +268,7 @@ $ git status --porcelain
 M .version
 M src/main.go
 
-$ verso bump patch
+$ sley bump patch
 Error: release-gate: uncommitted changes detected...
 ```
 
@@ -300,7 +300,7 @@ $ git rebase -i HEAD~5
 $ git branch --show-current
 feature/test
 
-$ verso bump patch
+$ sley bump patch
 Error: release-gate: bumps not allowed from branch "feature/test"...
 ```
 
@@ -308,14 +308,14 @@ Error: release-gate: bumps not allowed from branch "feature/test"...
 
 ```bash
 $ git checkout main
-$ verso bump patch
+$ sley bump patch
 ```
 
 ## Disabling for Emergency Releases
 
 To temporarily bypass the release gate:
 
-1. Edit `.verso.yaml` and set `enabled: false`
+1. Edit `.sley.yaml` and set `enabled: false`
 2. Perform the bump
 3. Re-enable the plugin
 

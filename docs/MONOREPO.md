@@ -1,6 +1,6 @@
 # Monorepo / Multi-Module Support
 
-This guide covers how to use `verso` to manage multiple `.version` files across a monorepo or multi-module project.
+This guide covers how to use `sley` to manage multiple `.version` files across a monorepo or multi-module project.
 
 ## Table of Contents
 
@@ -19,7 +19,7 @@ This guide covers how to use `verso` to manage multiple `.version` files across 
 
 ## Overview
 
-When you have multiple services, packages, or modules in a single repository, each with its own `.version` file, `verso` can detect and operate on all of them automatically.
+When you have multiple services, packages, or modules in a single repository, each with its own `.version` file, `sley` can detect and operate on all of them automatically.
 
 **Key features:**
 
@@ -35,17 +35,17 @@ When you have multiple services, packages, or modules in a single repository, ea
 
 ### Basic Usage
 
-From your monorepo root, run any command and `verso` will detect multiple modules:
+From your monorepo root, run any command and `sley` will detect multiple modules:
 
 ```bash
 # Bump all modules
-verso bump patch --all
+sley bump patch --all
 
 # Show versions for all modules
-verso show --all
+sley show --all
 
 # Set version for all modules
-verso set 1.0.0 --all
+sley set 1.0.0 --all
 ```
 
 ### Interactive Selection
@@ -53,7 +53,7 @@ verso set 1.0.0 --all
 Without `--all`, you'll get an interactive prompt:
 
 ```bash
-verso bump patch
+sley bump patch
 
 # Output:
 # ? Select modules to bump:
@@ -66,7 +66,7 @@ verso bump patch
 ### List Discovered Modules
 
 ```bash
-verso modules list
+sley modules list
 
 # Output:
 # api     ./services/api/.version    1.2.3
@@ -78,11 +78,11 @@ verso modules list
 
 ## How It Works
 
-`verso` uses a detection hierarchy to determine the execution mode:
+`sley` uses a detection hierarchy to determine the execution mode:
 
 ```
 1. --path flag provided     -> Single-module mode (explicit path)
-2. VERSO_PATH env set      -> Single-module mode (env path)
+2. SLEY_PATH env set      -> Single-module mode (env path)
 3. .version in current dir  -> Single-module mode (current dir)
 4. Multiple .version found  -> Multi-module mode (discovery)
 5. No .version found        -> Error
@@ -98,7 +98,7 @@ verso modules list
 
 ### Automatic Discovery
 
-By default, `verso` recursively searches for `.version` files:
+By default, `sley` recursively searches for `.version` files:
 
 ```bash
 my-monorepo/
@@ -118,23 +118,23 @@ The module name is derived from the parent directory name.
 **List all modules:**
 
 ```bash
-verso modules list
-verso modules list --verbose
-verso modules list --format json
+sley modules list
+sley modules list --verbose
+sley modules list --format json
 ```
 
 **Test discovery configuration:**
 
 ```bash
-verso modules discover
+sley modules discover
 ```
 
 ### Exclude Patterns
 
-Create a `.versoignore` file to exclude directories:
+Create a `.sleyignore` file to exclude directories:
 
 ```
-# .versoignore
+# .sleyignore
 vendor/
 node_modules/
 testdata/
@@ -191,7 +191,7 @@ If you choose "Select specific modules...":
 Use `--yes` to skip the prompt and select all modules:
 
 ```bash
-verso bump patch --yes
+sley bump patch --yes
 ```
 
 ---
@@ -203,44 +203,44 @@ For CI/CD or scripting, use these flags to skip interactive prompts:
 ### Operate on All Modules
 
 ```bash
-verso bump patch --all
-verso show --all
-verso set 1.0.0 --all
+sley bump patch --all
+sley show --all
+sley set 1.0.0 --all
 ```
 
 ### Operate on Specific Modules
 
 ```bash
 # Single module by name
-verso bump patch --module api
+sley bump patch --module api
 
 # Multiple modules by name
-verso bump patch --modules api,web,shared
+sley bump patch --modules api,web,shared
 
 # Modules matching a pattern
-verso bump patch --pattern "services/*"
+sley bump patch --pattern "services/*"
 ```
 
 ### Disable Prompts Explicitly
 
 ```bash
-verso bump patch --all --non-interactive
+sley bump patch --all --non-interactive
 ```
 
 ### Execution Control
 
 ```bash
 # Run operations in parallel (faster)
-verso bump patch --all --parallel
+sley bump patch --all --parallel
 
 # Stop on first error (default)
-verso bump patch --all --fail-fast
+sley bump patch --all --fail-fast
 
 # Continue even if some modules fail
-verso bump patch --all --continue-on-error
+sley bump patch --all --continue-on-error
 
 # Suppress per-module output
-verso bump patch --all --quiet
+sley bump patch --all --quiet
 ```
 
 ---
@@ -249,10 +249,10 @@ verso bump patch --all --quiet
 
 ### Workspace Configuration
 
-Configure discovery and modules in `.verso.yaml`:
+Configure discovery and modules in `.sley.yaml`:
 
 ```yaml
-# .verso.yaml
+# .sley.yaml
 path: .version
 
 # Workspace configuration (optional)
@@ -290,16 +290,16 @@ workspace:
 
 **Explicit modules:**
 
-- Define modules in `.verso.yaml`
+- Define modules in `.sley.yaml`
 - Full control over module names and paths
 - Can disable specific modules
 
 ### Config Inheritance
 
-Module-specific `.verso.yaml` files can override workspace settings:
+Module-specific `.sley.yaml` files can override workspace settings:
 
 ```yaml
-# services/api/.verso.yaml
+# services/api/.sley.yaml
 path: VERSION # Use VERSION instead of .version
 plugins:
   commit-parser: false # Disable for this module
@@ -312,7 +312,7 @@ plugins:
 ### Text Format (Default)
 
 ```bash
-verso show --all
+sley show --all
 
 # Output:
 # api     1.2.3
@@ -323,7 +323,7 @@ verso show --all
 ### JSON Format
 
 ```bash
-verso show --all --format json
+sley show --all --format json
 
 # Output:
 # [
@@ -336,7 +336,7 @@ verso show --all --format json
 ### Table Format
 
 ```bash
-verso show --all --format table
+sley show --all --format table
 
 # Output:
 # +--------+---------+
@@ -351,7 +351,7 @@ verso show --all --format table
 ### Bump Output
 
 ```bash
-verso bump patch --all
+sley bump patch --all
 
 # Output:
 # Bump patch
@@ -367,7 +367,7 @@ verso bump patch --all
 
 ### Automatic Detection
 
-`verso` automatically detects CI environments and disables interactive prompts:
+`sley` automatically detects CI environments and disables interactive prompts:
 
 **Detected CI environments:**
 
@@ -412,15 +412,15 @@ jobs:
         with:
           go-version: "1.23"
 
-      - name: Install verso
-        run: go install github.com/indaco/verso/cmd/verso@latest
+      - name: Install sley
+        run: go install github.com/indaco/sley/cmd/sley@latest
 
       - name: Bump versions
         run: |
           if [ "${{ inputs.modules }}" = "all" ]; then
-            verso bump ${{ inputs.bump_type }} --all
+            sley bump ${{ inputs.bump_type }} --all
           else
-            verso bump ${{ inputs.bump_type }} --modules ${{ inputs.modules }}
+            sley bump ${{ inputs.bump_type }} --modules ${{ inputs.modules }}
           fi
 
       - name: Commit changes
@@ -439,8 +439,8 @@ jobs:
 bump-version:
   stage: release
   script:
-    - go install github.com/indaco/verso/cmd/verso@latest
-    - verso bump patch --all
+    - go install github.com/indaco/sley/cmd/sley@latest
+    - sley bump patch --all
     - git add .
     - git commit -m "chore: bump version"
     - git push
@@ -456,13 +456,13 @@ bump-version:
 # bump-all.sh
 
 # Get current versions as JSON
-versions=$(verso show --all --format json)
+versions=$(sley show --all --format json)
 
 # Bump all modules
-verso bump patch --all --quiet
+sley bump patch --all --quiet
 
 # Get new versions
-new_versions=$(verso show --all --format json)
+new_versions=$(sley show --all --format json)
 
 # Output changes
 echo "Version changes:"
@@ -491,10 +491,10 @@ echo "0.1.0" > services/api/.version
 Check if the directory is excluded:
 
 ```bash
-verso modules discover
+sley modules discover
 ```
 
-Review your `.versoignore` and `.verso.yaml` exclude patterns.
+Review your `.sleyignore` and `.sley.yaml` exclude patterns.
 
 ### Interactive mode not working
 
@@ -513,7 +513,7 @@ chmod 644 services/*/.version
 If you encounter race conditions, use sequential execution:
 
 ```bash
-verso bump patch --all  # Sequential by default
+sley bump patch --all  # Sequential by default
 ```
 
 ### Version format errors
@@ -521,7 +521,7 @@ verso bump patch --all  # Sequential by default
 Ensure all `.version` files contain valid semver:
 
 ```bash
-verso validate  # In each module directory
+sley validate  # In each module directory
 ```
 
 ---
@@ -547,10 +547,10 @@ verso validate  # In each module directory
 ### Module Commands
 
 ```bash
-verso modules list              # List all modules
-verso modules list --verbose    # Detailed output
-verso modules list --format json
-verso modules discover          # Test discovery settings
+sley modules list              # List all modules
+sley modules list --verbose    # Detailed output
+sley modules list --format json
+sley modules discover          # Test discovery settings
 ```
 
 ---

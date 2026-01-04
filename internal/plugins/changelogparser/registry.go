@@ -26,7 +26,7 @@ func getChangelogParser() ChangelogInferrer {
 	return defaultChangelogParser
 }
 
-// Register registers the changelog parser plugin with the verso plugin system.
+// Register registers the changelog parser plugin with the sley plugin system.
 func Register(cfg *Config) {
 	RegisterChangelogParserFn(NewChangelogParser(cfg))
 }

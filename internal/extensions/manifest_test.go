@@ -11,8 +11,8 @@ func TestExtensionManifest_Validate(t *testing.T) {
 		Version:     "0.1.0",
 		Description: "Parses conventional commits",
 		Author:      "indaco",
-		Repository:  "https://github.com/indaco/verso-commit-parser",
-		Entry:       "github.com/indaco/verso-commit/parser",
+		Repository:  "https://github.com/indaco/sley-commit-parser",
+		Entry:       "github.com/indaco/sley-commit/parser",
 	}
 
 	tests := []struct {

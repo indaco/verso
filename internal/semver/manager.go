@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/indaco/verso/internal/core"
+	"github.com/indaco/sley/internal/core"
 )
 
 // VersionManager handles version file operations with injected dependencies.

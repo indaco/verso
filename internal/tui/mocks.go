@@ -3,7 +3,7 @@ package tui
 import (
 	"sync"
 
-	"github.com/indaco/verso/internal/workspace"
+	"github.com/indaco/sley/internal/workspace"
 )
 
 // MockPrompter is a mock implementation of Prompter for testing.

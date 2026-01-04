@@ -1,6 +1,6 @@
 # Version Policy Extension
 
-This extension enforces versioning policies and organizational rules for verso. It validates version changes against configurable policies to ensure compliance with team standards.
+This extension enforces versioning policies and organizational rules for sley. It validates version changes against configurable policies to ensure compliance with team standards.
 
 ## Features
 
@@ -18,7 +18,7 @@ This extension enforces versioning policies and organizational rules for verso. 
 ```bash
 cd contrib/extensions/version-policy
 make build
-verso extension install --path .
+sley extension install --path .
 ```
 
 ### Pre-built Binary
@@ -28,13 +28,13 @@ Download the appropriate binary for your platform and install:
 ```bash
 # Linux
 make build-all
-verso extension install --path .
+sley extension install --path .
 ```
 
 ### From URL (after cloning the repo)
 
 ```bash
-verso extension install --url https://github.com/indaco/verso
+sley extension install --url https://github.com/indaco/sley
 # Then build and install from contrib/extensions/version-policy
 ```
 
@@ -44,7 +44,7 @@ Once installed and enabled, the extension runs automatically during version oper
 
 ```bash
 # Will validate policies before bump
-verso bump patch
+sley bump patch
 
 # Will validate policies during validation
 semver validate
@@ -52,7 +52,7 @@ semver validate
 
 ## Configuration
 
-Add configuration to your `.verso.yaml`:
+Add configuration to your `.sley.yaml`:
 
 ### Basic Configuration
 
@@ -96,7 +96,7 @@ Prevents accidental prerelease versions on production branches:
 
 ```bash
 # On main branch
-verso set 1.2.3-alpha.1
+sley set 1.2.3-alpha.1
 # Error: policy violation: prerelease versions are not allowed on main/master branch
 ```
 
@@ -106,7 +106,7 @@ Ensures all changes are committed before version changes:
 
 ```bash
 # With uncommitted changes
-verso bump patch
+sley bump patch
 # Error: policy violation: working directory must be clean (no uncommitted changes)
 ```
 
@@ -120,7 +120,7 @@ config:
 ```
 
 ```bash
-verso set 1.2.3-alpha.6
+sley set 1.2.3-alpha.6
 # Error: policy violation: prerelease iteration 6 exceeds maximum allowed (5)
 ```
 
@@ -135,11 +135,11 @@ config:
 
 ```bash
 # Allowed
-verso set 1.2.0  # Even minor
-verso set 1.3.0-alpha.1  # Odd minor but prerelease
+sley set 1.2.0  # Even minor
+sley set 1.3.0-alpha.1  # Odd minor but prerelease
 
 # Not allowed
-verso set 1.3.0  # Odd minor and stable
+sley set 1.3.0  # Odd minor and stable
 # Error: policy violation: stable releases must have even minor version
 ```
 

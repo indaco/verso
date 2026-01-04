@@ -2,7 +2,7 @@
 // It encapsulates TUI library specifics and provides clean interfaces for testing.
 package tui
 
-import "github.com/indaco/verso/internal/workspace"
+import "github.com/indaco/sley/internal/workspace"
 
 // Prompter abstracts interactive prompts for module selection.
 // This interface enables dependency injection and testing with mock implementations.

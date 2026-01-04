@@ -3,7 +3,7 @@ package auditlog
 import (
 	"testing"
 
-	"github.com/indaco/verso/internal/config"
+	"github.com/indaco/sley/internal/config"
 )
 
 func TestRegister(t *testing.T) {

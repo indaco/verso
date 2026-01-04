@@ -1,23 +1,23 @@
 # Extension Quick Start Guide
 
-Quick reference for using the verso extensions.
+Quick reference for using the sley extensions.
 
 ## Installation
 
 ```bash
 # Install a single extension
-verso extension install ./contrib/extensions/git-tagger
+sley extension install ./contrib/extensions/git-tagger
 
 # List installed extensions
-verso extension list
+sley extension list
 
 # Remove an extension
-verso extension remove git-tagger
+sley extension remove git-tagger
 ```
 
 ## Configuration
 
-Add to your `.verso.yaml`:
+Add to your `.sley.yaml`:
 
 ```yaml
 extensions:
@@ -115,7 +115,7 @@ extensions:
 Then:
 
 ```bash
-verso bump auto
+sley bump auto
 # 1. Validates commits
 # 2. Bumps version
 # 3. Updates package.json

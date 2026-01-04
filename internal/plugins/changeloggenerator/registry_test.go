@@ -3,7 +3,7 @@ package changeloggenerator
 import (
 	"testing"
 
-	"github.com/indaco/verso/internal/config"
+	"github.com/indaco/sley/internal/config"
 )
 
 func TestRegisterChangelogGenerator(t *testing.T) {

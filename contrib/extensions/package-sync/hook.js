@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * Package Sync Extension for verso
+ * Package Sync Extension for sley
  * Synchronizes version to package.json and other JSON files
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 /**
  * Get nested property value from object using dot notation
@@ -14,7 +14,7 @@ const path = require('path');
  * @returns {*} The value at the path or undefined
  */
 function getNestedValue(obj, path) {
-  return path.split('.').reduce((current, key) => current?.[key], obj);
+  return path.split(".").reduce((current, key) => current?.[key], obj);
 }
 
 /**
@@ -24,7 +24,7 @@ function getNestedValue(obj, path) {
  * @param {*} value - The value to set
  */
 function setNestedValue(obj, path, value) {
-  const keys = path.split('.');
+  const keys = path.split(".");
   const lastKey = keys.pop();
   const target = keys.reduce((current, key) => {
     if (!(key in current)) {
@@ -42,18 +42,18 @@ function setNestedValue(obj, path, value) {
  * @param {Array<string>} paths - JSON paths to update (default: ["version"])
  * @returns {Object} Result object with success status and message
  */
-function updateJsonFile(filePath, version, paths = ['version']) {
+function updateJsonFile(filePath, version, paths = ["version"]) {
   try {
     // Check if file exists
     if (!fs.existsSync(filePath)) {
       return {
         success: false,
-        message: `File not found: ${filePath}`
+        message: `File not found: ${filePath}`,
       };
     }
 
     // Read and parse JSON file
-    const fileContent = fs.readFileSync(filePath, 'utf8');
+    const fileContent = fs.readFileSync(filePath, "utf8");
     let jsonData;
 
     try {
@@ -61,7 +61,7 @@ function updateJsonFile(filePath, version, paths = ['version']) {
     } catch (parseError) {
       return {
         success: false,
-        message: `Invalid JSON in ${filePath}: ${parseError.message}`
+        message: `Invalid JSON in ${filePath}: ${parseError.message}`,
       };
     }
 
@@ -75,17 +75,17 @@ function updateJsonFile(filePath, version, paths = ['version']) {
 
     // Write back to file with formatting
     const indentSize = detectIndentation(fileContent);
-    const updatedContent = JSON.stringify(jsonData, null, indentSize) + '\n';
-    fs.writeFileSync(filePath, updatedContent, 'utf8');
+    const updatedContent = JSON.stringify(jsonData, null, indentSize) + "\n";
+    fs.writeFileSync(filePath, updatedContent, "utf8");
 
     return {
       success: true,
-      message: `Updated ${path.basename(filePath)}: ${updatedPaths.join(', ')}`
+      message: `Updated ${path.basename(filePath)}: ${updatedPaths.join(", ")}`,
     };
   } catch (error) {
     return {
       success: false,
-      message: `Error updating ${filePath}: ${error.message}`
+      message: `Error updating ${filePath}: ${error.message}`,
     };
   }
 }
@@ -100,8 +100,8 @@ function detectIndentation(content) {
   const match = content.match(/^(\s+)"[^"]+"/m);
   if (match) {
     const indent = match[1];
-    if (indent.includes('\t')) {
-      return '\t';
+    if (indent.includes("\t")) {
+      return "\t";
     }
     return indent.length;
   }
@@ -115,13 +115,13 @@ function detectIndentation(content) {
 function main() {
   try {
     // Read JSON input from stdin
-    let inputData = '';
+    let inputData = "";
 
-    process.stdin.on('data', (chunk) => {
+    process.stdin.on("data", (chunk) => {
       inputData += chunk;
     });
 
-    process.stdin.on('end', () => {
+    process.stdin.on("end", () => {
       try {
         const input = JSON.parse(inputData);
 
@@ -134,8 +134,8 @@ function main() {
         if (!version) {
           const result = {
             success: false,
-            message: 'Missing required field: version',
-            data: {}
+            message: "Missing required field: version",
+            data: {},
           };
           console.log(JSON.stringify(result));
           process.exit(1);
@@ -144,8 +144,8 @@ function main() {
         if (!projectRoot) {
           const result = {
             success: false,
-            message: 'Missing required field: project_root',
-            data: {}
+            message: "Missing required field: project_root",
+            data: {},
           };
           console.log(JSON.stringify(result));
           process.exit(1);
@@ -153,7 +153,7 @@ function main() {
 
         // Get file configurations with defaults
         const fileConfigs = config.files || [
-          { path: 'package.json', json_paths: ['version'] }
+          { path: "package.json", json_paths: ["version"] },
         ];
 
         // Process each file
@@ -161,8 +161,11 @@ function main() {
         let hasError = false;
 
         for (const fileConfig of fileConfigs) {
-          const filePath = path.join(projectRoot, fileConfig.path || fileConfig);
-          const jsonPaths = fileConfig.json_paths || ['version'];
+          const filePath = path.join(
+            projectRoot,
+            fileConfig.path || fileConfig,
+          );
+          const jsonPaths = fileConfig.json_paths || ["version"];
 
           const result = updateJsonFile(filePath, version, jsonPaths);
           results.push(result.message);
@@ -175,42 +178,40 @@ function main() {
         // Return combined result
         const output = {
           success: !hasError,
-          message: results.join('; '),
+          message: results.join("; "),
           data: {
             files_processed: fileConfigs.length,
-            version: version
-          }
+            version: version,
+          },
         };
 
         console.log(JSON.stringify(output));
         process.exit(hasError ? 1 : 0);
-
       } catch (parseError) {
         const result = {
           success: false,
           message: `Invalid JSON input: ${parseError.message}`,
-          data: {}
+          data: {},
         };
         console.log(JSON.stringify(result));
         process.exit(1);
       }
     });
 
-    process.stdin.on('error', (error) => {
+    process.stdin.on("error", (error) => {
       const result = {
         success: false,
         message: `Error reading input: ${error.message}`,
-        data: {}
+        data: {},
       };
       console.log(JSON.stringify(result));
       process.exit(1);
     });
-
   } catch (error) {
     const result = {
       success: false,
       message: `Unexpected error: ${error.message}`,
-      data: {}
+      data: {},
     };
     console.log(JSON.stringify(result));
     process.exit(1);

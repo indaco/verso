@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/indaco/verso/internal/cmdrunner"
+	"github.com/indaco/sley/internal/cmdrunner"
 )
 
 // Function variables to allow mocking

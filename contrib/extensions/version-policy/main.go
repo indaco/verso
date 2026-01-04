@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// Input represents the JSON input from verso
+// Input represents the JSON input from sley
 type Input struct {
 	Hook            string                 `json:"hook"`
 	Version         string                 `json:"version"`
@@ -21,7 +21,7 @@ type Input struct {
 	Config          map[string]interface{} `json:"config"`
 }
 
-// Output represents the JSON output to verso
+// Output represents the JSON output to sley
 type Output struct {
 	Success bool                   `json:"success"`
 	Message string                 `json:"message"`
