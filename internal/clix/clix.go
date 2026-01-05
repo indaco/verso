@@ -261,14 +261,16 @@ func getMultiModuleContext(ctx context.Context, cmd *cli.Command, cfg *config.Co
 	}, nil
 }
 
-// filterModulesByName filters modules to only include the one with the given name.
+// filterModulesByName filters modules to include all with the given name.
+// When multiple modules share the same name (common in monorepos), all are returned.
 func filterModulesByName(modules []*workspace.Module, name string) []*workspace.Module {
+	var filtered []*workspace.Module
 	for _, mod := range modules {
 		if mod.Name == name {
-			return []*workspace.Module{mod}
+			filtered = append(filtered, mod)
 		}
 	}
-	return nil
+	return filtered
 }
 
 // filterModulesBySelection filters modules based on user selection.

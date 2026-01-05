@@ -114,19 +114,26 @@ func TestFilterModulesByName(t *testing.T) {
 		{Name: "module-c", Path: "/path/to/module-c/.version"},
 	}
 
+	// Modules with duplicate names (common in monorepos)
+	modulesWithDuplicates := []*workspace.Module{
+		{Name: "version", Path: "/backend/gateway/internal/version/.version", Dir: "backend/gateway/internal/version"},
+		{Name: "version", Path: "/cli/internal/version/.version", Dir: "cli/internal/version"},
+		{Name: "ai-services", Path: "/backend/ai-services/.version", Dir: "backend/ai-services"},
+	}
+
 	tests := []struct {
 		name       string
 		modules    []*workspace.Module
 		moduleName string
 		wantCount  int
-		wantName   string
+		wantPaths  []string // Check paths to verify correct modules returned
 	}{
 		{
 			name:       "filter existing module",
 			modules:    modules,
 			moduleName: "module-b",
 			wantCount:  1,
-			wantName:   "module-b",
+			wantPaths:  []string{"/path/to/module-b/.version"},
 		},
 		{
 			name:       "filter non-existent module",
@@ -140,6 +147,23 @@ func TestFilterModulesByName(t *testing.T) {
 			moduleName: "module-a",
 			wantCount:  0,
 		},
+		{
+			name:       "filter returns all modules with same name",
+			modules:    modulesWithDuplicates,
+			moduleName: "version",
+			wantCount:  2,
+			wantPaths: []string{
+				"/backend/gateway/internal/version/.version",
+				"/cli/internal/version/.version",
+			},
+		},
+		{
+			name:       "filter unique module among duplicates",
+			modules:    modulesWithDuplicates,
+			moduleName: "ai-services",
+			wantCount:  1,
+			wantPaths:  []string{"/backend/ai-services/.version"},
+		},
 	}
 
 	for _, tt := range tests {
@@ -148,8 +172,16 @@ func TestFilterModulesByName(t *testing.T) {
 			if len(got) != tt.wantCount {
 				t.Errorf("filterModulesByName() returned %d modules, want %d", len(got), tt.wantCount)
 			}
-			if tt.wantCount > 0 && got[0].Name != tt.wantName {
-				t.Errorf("filterModulesByName() returned module %q, want %q", got[0].Name, tt.wantName)
+			if tt.wantCount > 0 {
+				for i, wantPath := range tt.wantPaths {
+					if i >= len(got) {
+						t.Errorf("filterModulesByName() missing module at index %d", i)
+						continue
+					}
+					if got[i].Path != wantPath {
+						t.Errorf("filterModulesByName()[%d].Path = %q, want %q", i, got[i].Path, wantPath)
+					}
+				}
 			}
 		})
 	}
