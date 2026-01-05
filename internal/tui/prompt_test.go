@@ -146,3 +146,81 @@ func TestErrCanceled(t *testing.T) {
 		t.Errorf("ErrCanceled.Error() = %q, want %q", ErrCanceled.Error(), expectedMsg)
 	}
 }
+
+func TestModulePrompt_FormatModuleList_WithPaths(t *testing.T) {
+	// Test that formatModuleList uses DisplayNameWithPath for disambiguation
+	modules := []*workspace.Module{
+		{Name: "version", CurrentVersion: "1.0.0", Dir: "backend/gateway/internal/version"},
+		{Name: "version", CurrentVersion: "2.0.0", Dir: "cli/internal/version"},
+		{Name: "api", CurrentVersion: "3.0.0", Dir: "backend/api"},
+	}
+
+	prompt := NewModulePrompt(modules)
+	result := prompt.formatModuleList()
+
+	// Should contain paths for disambiguation
+	expectedParts := []string{
+		"version",
+		"backend/gateway/internal/version",
+		"cli/internal/version",
+		"backend/api",
+	}
+
+	for _, expected := range expectedParts {
+		if !containsSubstring(result, expected) {
+			t.Errorf("formatModuleList() should contain %q for disambiguation\nGot: %s", expected, result)
+		}
+	}
+}
+
+func TestModulePrompt_FormatModuleList_RootModule(t *testing.T) {
+	// Test that root modules (Dir = ".") don't show redundant path
+	modules := []*workspace.Module{
+		{Name: "myapp", CurrentVersion: "1.0.0", Dir: "."},
+	}
+
+	prompt := NewModulePrompt(modules)
+	result := prompt.formatModuleList()
+
+	// Should contain the module name
+	if !containsSubstring(result, "myapp") {
+		t.Errorf("formatModuleList() should contain module name, got: %s", result)
+	}
+
+	// Should NOT contain " - ." since Dir is root
+	if containsSubstring(result, " - .") {
+		t.Errorf("formatModuleList() should not show ' - .' for root modules, got: %s", result)
+	}
+}
+
+// Note: Selection helper tests (AllModules, SelectedModules, CanceledSelection)
+// and Choice tests (String, ParseChoice) are in tui_test.go
+
+func TestCustomKeyMap(t *testing.T) {
+	km := customKeyMap()
+
+	if km == nil {
+		t.Fatal("customKeyMap() returned nil")
+	}
+
+	// Verify Quit binding includes both ctrl+c and esc
+	keys := km.Quit.Keys()
+	hasCtrlC := false
+	hasEsc := false
+
+	for _, k := range keys {
+		if k == "ctrl+c" {
+			hasCtrlC = true
+		}
+		if k == "esc" {
+			hasEsc = true
+		}
+	}
+
+	if !hasCtrlC {
+		t.Error("customKeyMap().Quit should include 'ctrl+c'")
+	}
+	if !hasEsc {
+		t.Error("customKeyMap().Quit should include 'esc' for cancel")
+	}
+}
