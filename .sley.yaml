@@ -5,6 +5,7 @@ plugins:
     enabled: true
     mode: "versioned"
     changes-dir: ".changes"
+    header-template: ".changes/header.tpl.md"
     repository:
       provider: "github"
       owner: "indaco"
