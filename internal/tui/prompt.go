@@ -1,15 +1,28 @@
 package tui
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/huh"
 	"github.com/indaco/sley/internal/workspace"
 )
 
 // ErrCanceled is returned when the user cancels the operation.
 var ErrCanceled = fmt.Errorf("operation canceled by user")
+
+// customKeyMap returns a KeyMap with Esc added as a quit key.
+func customKeyMap() *huh.KeyMap {
+	km := huh.NewDefaultKeyMap()
+	// Add "esc" to the quit binding (alongside ctrl+c)
+	km.Quit = key.NewBinding(
+		key.WithKeys("ctrl+c", "esc"),
+		key.WithHelp("esc", "cancel"),
+	)
+	return km
+}
 
 // ModulePrompt implements the Prompter interface using charmbracelet/huh.
 // It provides an interactive TUI for module selection in multi-module workspaces.
@@ -75,9 +88,13 @@ func (p *ModulePrompt) showInitialPrompt() (Choice, error) {
 				).
 				Value(&choice),
 		),
-	)
+	).WithKeyMap(customKeyMap())
 
 	if err := form.Run(); err != nil {
+		// User pressed Escape or Ctrl+C
+		if errors.Is(err, huh.ErrUserAborted) {
+			return ChoiceCancel, nil
+		}
 		return ChoiceCancel, fmt.Errorf("prompt failed: %w", err)
 	}
 
@@ -88,23 +105,27 @@ func (p *ModulePrompt) showInitialPrompt() (Choice, error) {
 func (p *ModulePrompt) showMultiSelect() (Selection, error) {
 	var selected []string
 
-	// Build options from modules
+	// Build options from modules using DisplayNameWithPath for disambiguation
 	options := make([]huh.Option[string], len(p.modules))
 	for i, mod := range p.modules {
-		options[i] = huh.NewOption(mod.DisplayName(), mod.Name)
+		options[i] = huh.NewOption(mod.DisplayNameWithPath(), mod.Name)
 	}
 
 	form := huh.NewForm(
 		huh.NewGroup(
 			huh.NewMultiSelect[string]().
-				Title("Select modules to operate on:").
-				Description("Use space to toggle, enter to confirm").
+				Title("Select modules to operate on (Esc to cancel):").
+				Description("Space: toggle | Enter: confirm").
 				Options(options...).
 				Value(&selected),
 		),
-	)
+	).WithKeyMap(customKeyMap())
 
 	if err := form.Run(); err != nil {
+		// User pressed Escape or Ctrl+C
+		if errors.Is(err, huh.ErrUserAborted) {
+			return CanceledSelection(), ErrCanceled
+		}
 		return Selection{}, fmt.Errorf("multi-select failed: %w", err)
 	}
 
@@ -125,9 +146,13 @@ func (p *ModulePrompt) ConfirmOperation(message string) (bool, error) {
 				Title(message).
 				Value(&confirmed),
 		),
-	)
+	).WithKeyMap(customKeyMap())
 
 	if err := form.Run(); err != nil {
+		// User pressed Escape or Ctrl+C - treat as declined
+		if errors.Is(err, huh.ErrUserAborted) {
+			return false, nil
+		}
 		return false, fmt.Errorf("confirmation failed: %w", err)
 	}
 
@@ -149,7 +174,8 @@ func (p *ModulePrompt) formatModuleList() string {
 
 	var result strings.Builder
 	for _, mod := range preview {
-		result.WriteString(fmt.Sprintf("\n  • %s", mod.DisplayName()))
+		// Use DisplayNameWithPath for disambiguation when modules have same name
+		result.WriteString(fmt.Sprintf("\n  - %s", mod.DisplayNameWithPath()))
 	}
 
 	if len(p.modules) > maxPreview {
