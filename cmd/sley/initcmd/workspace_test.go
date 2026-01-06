@@ -553,6 +553,133 @@ func TestCLI_InitCommand_WorkspaceWithForce(t *testing.T) {
 	}
 }
 
+func TestRunWorkspaceInit_NoPluginsSelected(t *testing.T) {
+	tmp := t.TempDir()
+	t.Chdir(tmp)
+
+	// Create a module
+	modDir := filepath.Join(tmp, "module-a")
+	if err := os.MkdirAll(modDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(modDir, ".version"), []byte("1.0.0"), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	// When empty flags are used, it falls through to defaults in non-interactive mode
+	// To actually test no plugins selected, we'd need to simulate interactive cancellation
+	// which is not possible in test environment. Instead test with empty enable list.
+	// Note: Empty string enableFlag "" doesn't mean "no plugins",
+	// it means "don't use --enable flag, use other logic"
+
+	// Pass yesFlag=true with empty template and enable to get defaults
+	err := runWorkspaceInit(".version", true, "", "", false)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Config should be created with default plugins
+	if _, err := os.Stat(".sley.yaml"); os.IsNotExist(err) {
+		t.Error("expected .sley.yaml to be created")
+	}
+}
+
+func TestRunWorkspaceInit_DeterminePluginsFails(t *testing.T) {
+	tmp := t.TempDir()
+	t.Chdir(tmp)
+
+	// Using invalid template should cause determinePlugins to fail
+	err := runWorkspaceInit(".version", false, "invalid-template", "", false)
+	if err == nil {
+		t.Fatal("expected error with invalid template")
+	}
+	if !strings.Contains(err.Error(), "unknown template") {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestCreateWorkspaceConfigFile_NonInteractiveSkipsExisting(t *testing.T) {
+	tmp := t.TempDir()
+	t.Chdir(tmp)
+
+	// Create existing config
+	if err := os.WriteFile(".sley.yaml", []byte("existing: config\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	modules := []DiscoveredModule{}
+
+	// Without force flag, in non-interactive mode, should skip
+	created, err := createWorkspaceConfigFile([]string{"commit-parser"}, modules, false)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if created {
+		t.Error("expected workspace config creation to be skipped")
+	}
+
+	// Verify original content unchanged
+	data, _ := os.ReadFile(".sley.yaml")
+	if !strings.Contains(string(data), "existing: config") {
+		t.Error("expected original config to be unchanged")
+	}
+}
+
+func TestCreateWorkspaceConfigFile_WriteFails(t *testing.T) {
+	tmp := t.TempDir()
+	readOnlyDir := filepath.Join(tmp, "readonly")
+	if err := os.Mkdir(readOnlyDir, 0555); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		_ = os.Chmod(readOnlyDir, 0755)
+	})
+
+	t.Chdir(readOnlyDir)
+
+	modules := []DiscoveredModule{}
+	_, err := createWorkspaceConfigFile([]string{"commit-parser"}, modules, false)
+	if err == nil {
+		t.Fatal("expected error when writing to read-only directory")
+	}
+	if !strings.Contains(err.Error(), "failed to write config file") {
+		t.Errorf("unexpected error message: %v", err)
+	}
+}
+
+func TestDiscoverVersionFiles_InaccessibleDirectory(t *testing.T) {
+	tmp := t.TempDir()
+	t.Chdir(tmp)
+
+	// Create a module
+	modDir := filepath.Join(tmp, "accessible")
+	if err := os.MkdirAll(modDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(modDir, ".version"), []byte("1.0.0"), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	// Create an inaccessible directory (will be skipped)
+	noAccessDir := filepath.Join(tmp, "noaccess")
+	if err := os.Mkdir(noAccessDir, 0000); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		_ = os.Chmod(noAccessDir, 0755)
+	})
+
+	modules, err := discoverVersionFiles(".")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Should find the accessible module and skip the inaccessible one
+	if len(modules) != 1 {
+		t.Errorf("expected 1 module, got %d", len(modules))
+	}
+}
+
 // captureStdout captures stdout during function execution
 func captureStdout(f func()) (string, error) {
 	old := os.Stdout

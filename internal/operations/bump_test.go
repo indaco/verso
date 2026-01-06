@@ -429,6 +429,27 @@ func TestBumpOperation_Execute_UnknownBumpType(t *testing.T) {
 	}
 }
 
+func TestBumpOperation_Execute_SaveError(t *testing.T) {
+	fs := core.NewMockFileSystem()
+	fs.SetFile("/test/.version", []byte("1.2.3\n"))
+
+	// Inject write error - this will be checked when Save is called
+	fs.WriteErr = context.DeadlineExceeded
+
+	op := NewBumpOperation(fs, BumpPatch, "", "", false)
+	mod := &workspace.Module{
+		Name: "test",
+		Path: "/test/.version",
+	}
+
+	ctx := context.Background()
+
+	err := op.Execute(ctx, mod)
+	if err == nil {
+		t.Fatal("expected save error, got nil")
+	}
+}
+
 func TestBumpOperation_Name(t *testing.T) {
 	tests := []struct {
 		name     string

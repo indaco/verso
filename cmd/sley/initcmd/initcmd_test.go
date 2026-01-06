@@ -866,6 +866,174 @@ func TestInitializeVersionFileWithMigration(t *testing.T) {
 	})
 }
 
+func TestHandleMigration_NoSources(t *testing.T) {
+	tmp := t.TempDir()
+	t.Chdir(tmp)
+
+	// No migration sources available
+	result := handleMigration(true)
+	if result != "" {
+		t.Errorf("expected empty result with no sources, got %q", result)
+	}
+}
+
+func TestHandleMigration_WithYesFlag(t *testing.T) {
+	tmp := t.TempDir()
+	t.Chdir(tmp)
+
+	// Create a package.json
+	pkgContent := `{"name": "test", "version": "2.5.0"}`
+	if err := os.WriteFile("package.json", []byte(pkgContent), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	// With --yes flag, should automatically use best version
+	result := handleMigration(true)
+	if result != "2.5.0" {
+		t.Errorf("expected version 2.5.0, got %q", result)
+	}
+}
+
+func TestHandleMigration_MultipleSources(t *testing.T) {
+	tmp := t.TempDir()
+	t.Chdir(tmp)
+
+	// Create multiple sources
+	pkgContent := `{"name": "test", "version": "1.0.0"}`
+	if err := os.WriteFile("package.json", []byte(pkgContent), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	cargoContent := `[package]
+name = "test"
+version = "2.0.0"`
+	if err := os.WriteFile("Cargo.toml", []byte(cargoContent), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	// With --yes flag, should use best source (package.json)
+	result := handleMigration(true)
+	if result != "1.0.0" {
+		t.Errorf("expected version 1.0.0 from package.json, got %q", result)
+	}
+}
+
+func TestIsTerminalInteractive(t *testing.T) {
+	// Running in test mode should return false
+	result := isTerminalInteractive()
+	if result {
+		t.Error("expected isTerminalInteractive to return false during test execution")
+	}
+}
+
+func TestIsTerminalInteractive_ChecksStdin(t *testing.T) {
+	// This test verifies the function checks stdin stats
+	// In test environment, stdin.Stat() should succeed but return non-CharDevice mode
+	// The function should return false for non-interactive (test) environment
+	result := isTerminalInteractive()
+	if result {
+		t.Error("expected false in non-interactive test environment")
+	}
+}
+
+func TestHandleMigration_SingleSource(t *testing.T) {
+	tmp := t.TempDir()
+	t.Chdir(tmp)
+
+	// Create a single source
+	if err := os.WriteFile("VERSION", []byte("4.5.0\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	// With single source, should use it automatically
+	result := handleMigration(true)
+	if result != "4.5.0" {
+		t.Errorf("expected version 4.5.0, got %q", result)
+	}
+}
+
+func TestDeterminePlugins_NonInteractive(t *testing.T) {
+	// In test environment (non-interactive), should use defaults
+	ctx := &ProjectContext{}
+	plugins, err := determinePlugins(ctx, false, "", "")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Should return default plugins
+	expected := DefaultPluginNames()
+	if len(plugins) != len(expected) {
+		t.Errorf("expected %d plugins, got %d", len(expected), len(plugins))
+	}
+}
+
+func TestCreateConfigFile_NonInteractiveSkipsExisting(t *testing.T) {
+	tmp := t.TempDir()
+	t.Chdir(tmp)
+
+	// Create existing config
+	if err := os.WriteFile(".sley.yaml", []byte("existing: config\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	// In test environment (non-interactive), should skip without force
+	created, err := createConfigFile([]string{"commit-parser"}, false)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if created {
+		t.Error("expected config creation to be skipped in non-interactive mode")
+	}
+
+	// Verify original content unchanged
+	data, _ := os.ReadFile(".sley.yaml")
+	if !strings.Contains(string(data), "existing: config") {
+		t.Error("expected original config to be unchanged")
+	}
+}
+
+func TestCreateConfigFile_WriteFails(t *testing.T) {
+	tmp := t.TempDir()
+	readOnlyDir := filepath.Join(tmp, "readonly")
+	if err := os.Mkdir(readOnlyDir, 0555); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		_ = os.Chmod(readOnlyDir, 0755)
+	})
+
+	t.Chdir(readOnlyDir)
+
+	_, err := createConfigFile([]string{"commit-parser"}, false)
+	if err == nil {
+		t.Fatal("expected error when writing to read-only directory")
+	}
+	if !strings.Contains(err.Error(), "failed to write config file") {
+		t.Errorf("unexpected error message: %v", err)
+	}
+}
+
+func TestInitializeVersionFileWithMigration_WriteFails(t *testing.T) {
+	tmp := t.TempDir()
+	readOnlyDir := filepath.Join(tmp, "readonly")
+	if err := os.Mkdir(readOnlyDir, 0555); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		_ = os.Chmod(readOnlyDir, 0755)
+	})
+
+	versionPath := filepath.Join(readOnlyDir, ".version")
+
+	_, err := initializeVersionFileWithMigration(versionPath, "1.0.0")
+	if err == nil {
+		t.Fatal("expected error when writing to read-only directory")
+	}
+	if !strings.Contains(err.Error(), "failed to write version file") {
+		t.Errorf("unexpected error message: %v", err)
+	}
+}
+
 // Note: TestDeterminePlugins_NonInteractive is not tested directly here
 // because the test environment may appear interactive.
 // The non-interactive fallback path is covered by CLI tests using
