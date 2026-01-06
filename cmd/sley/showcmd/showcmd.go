@@ -48,7 +48,8 @@ func runShowCmd(ctx context.Context, cmd *cli.Command, cfg *config.Config) error
 
 // runSingleModuleShow handles the single-module show operation.
 func runSingleModuleShow(cmd *cli.Command, path string) error {
-	if _, err := clix.FromCommandFn(cmd); err != nil {
+	// Use the execution context path for strict mode check, not the flag default
+	if _, err := clix.GetOrInitVersionFile(path, cmd.Bool("strict")); err != nil {
 		return err
 	}
 
@@ -87,7 +88,7 @@ func runMultiModuleShow(ctx context.Context, cmd *cli.Command, execCtx *clix.Exe
 	format := cmd.String("format")
 	quiet := cmd.Bool("quiet")
 
-	formatter := workspace.GetFormatter(format, "Version Summary")
+	formatter := workspace.GetFormatterWithVerb(format, "Version Summary", "checked")
 
 	if quiet {
 		// In quiet mode, just show summary
