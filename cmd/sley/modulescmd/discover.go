@@ -55,7 +55,7 @@ func runDiscover(ctx context.Context, cmd *cli.Command) error {
 	fmt.Println()
 
 	// Detect context
-	detectedCtx, err := detector.DetectContext(cwd)
+	detectedCtx, err := detector.DetectContext(ctx, cwd)
 	if err != nil {
 		return fmt.Errorf("failed to detect context: %w", err)
 	}

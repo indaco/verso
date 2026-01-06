@@ -53,7 +53,7 @@ func runList(ctx context.Context, cmd *cli.Command) error {
 	fs := core.NewOSFileSystem()
 	detector := workspace.NewDetector(fs, cfg)
 
-	modules, err := detector.DiscoverModules(cwd)
+	modules, err := detector.DiscoverModules(ctx, cwd)
 	if err != nil {
 		return fmt.Errorf("failed to discover modules: %w", err)
 	}

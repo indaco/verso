@@ -166,7 +166,7 @@ func GetExecutionContext(ctx context.Context, cmd *cli.Command, cfg *config.Conf
 
 	fs := core.NewOSFileSystem()
 	detector := workspace.NewDetector(fs, cfg)
-	detectedCtx, err := detector.DetectContext(cwd)
+	detectedCtx, err := detector.DetectContext(ctx, cwd)
 	if err != nil {
 		return nil, fmt.Errorf("failed to detect workspace context: %w", err)
 	}
@@ -212,7 +212,7 @@ func getMultiModuleContext(ctx context.Context, cmd *cli.Command, cfg *config.Co
 	detector := workspace.NewDetector(fs, cfg)
 
 	// Discover modules
-	modules, err := detector.DiscoverModules(cwd)
+	modules, err := detector.DiscoverModules(ctx, cwd)
 	if err != nil {
 		return nil, fmt.Errorf("failed to discover modules: %w", err)
 	}

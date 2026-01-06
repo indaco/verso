@@ -42,7 +42,7 @@ func (op *SetOperation) Execute(ctx context.Context, mod *workspace.Module) erro
 	vm := semver.NewVersionManager(op.fs, nil)
 
 	// Write the new version
-	if err := vm.Save(mod.Path, newVer); err != nil {
+	if err := vm.Save(ctx, mod.Path, newVer); err != nil {
 		return fmt.Errorf("failed to write version to %s: %w", mod.Path, err)
 	}
 

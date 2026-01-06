@@ -1,6 +1,7 @@
 package config
 
 import (
+	"context"
 	"strings"
 	"testing"
 
@@ -11,22 +12,22 @@ func TestValidator_ValidateYAMLSyntax(t *testing.T) {
 	tests := []struct {
 		name       string
 		configPath string
-		setupFS    func(*core.MockFileSystem)
+		setupFS    func(context.Context, *core.MockFileSystem)
 		wantPass   bool
 		wantMsg    string
 	}{
 		{
 			name:       "no config file",
 			configPath: "",
-			setupFS:    func(fs *core.MockFileSystem) {},
+			setupFS:    func(ctx context.Context, fs *core.MockFileSystem) {},
 			wantPass:   true,
 			wantMsg:    "No .sley.yaml file found, using defaults",
 		},
 		{
 			name:       "valid config file",
 			configPath: ".sley.yaml",
-			setupFS: func(fs *core.MockFileSystem) {
-				_ = fs.WriteFile(".sley.yaml", []byte("path: .version\n"), 0644)
+			setupFS: func(ctx context.Context, fs *core.MockFileSystem) {
+				_ = fs.WriteFile(ctx, ".sley.yaml", []byte("path: .version\n"), 0644)
 			},
 			wantPass: true,
 			wantMsg:  "Configuration file is valid YAML",
@@ -35,13 +36,14 @@ func TestValidator_ValidateYAMLSyntax(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
 			fs := core.NewMockFileSystem()
-			tt.setupFS(fs)
+			tt.setupFS(ctx, fs)
 
 			cfg := &Config{Path: ".version"}
 			validator := NewValidator(fs, cfg, tt.configPath, ".")
 
-			results, err := validator.Validate()
+			results, err := validator.Validate(ctx)
 			if err != nil {
 				t.Fatalf("Validate() error = %v", err)
 			}
@@ -117,10 +119,11 @@ func TestValidator_ValidateTagManagerConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
 			fs := core.NewMockFileSystem()
 			validator := NewValidator(fs, tt.config, "", ".")
 
-			results, err := validator.Validate()
+			results, err := validator.Validate(ctx)
 			if err != nil {
 				t.Fatalf("Validate() error = %v", err)
 			}
@@ -227,10 +230,11 @@ func TestValidator_ValidateVersionValidatorConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
 			fs := core.NewMockFileSystem()
 			validator := NewValidator(fs, tt.config, "", ".")
 
-			results, err := validator.Validate()
+			results, err := validator.Validate(ctx)
 			if err != nil {
 				t.Fatalf("Validate() error = %v", err)
 			}
@@ -254,7 +258,7 @@ func TestValidator_ValidateDependencyCheckConfig(t *testing.T) {
 	tests := []struct {
 		name      string
 		config    *Config
-		setupFS   func(*core.MockFileSystem)
+		setupFS   func(context.Context, *core.MockFileSystem)
 		wantError bool
 	}{
 		{
@@ -273,8 +277,8 @@ func TestValidator_ValidateDependencyCheckConfig(t *testing.T) {
 					},
 				},
 			},
-			setupFS: func(fs *core.MockFileSystem) {
-				_ = fs.WriteFile("package.json", []byte(`{"version": "1.0.0"}`), 0644)
+			setupFS: func(ctx context.Context, fs *core.MockFileSystem) {
+				_ = fs.WriteFile(ctx, "package.json", []byte(`{"version": "1.0.0"}`), 0644)
 			},
 			wantError: false,
 		},
@@ -294,7 +298,7 @@ func TestValidator_ValidateDependencyCheckConfig(t *testing.T) {
 					},
 				},
 			},
-			setupFS:   func(fs *core.MockFileSystem) {},
+			setupFS:   func(ctx context.Context, fs *core.MockFileSystem) {},
 			wantError: true,
 		},
 		{
@@ -313,8 +317,8 @@ func TestValidator_ValidateDependencyCheckConfig(t *testing.T) {
 					},
 				},
 			},
-			setupFS: func(fs *core.MockFileSystem) {
-				_ = fs.WriteFile("file.txt", []byte("content"), 0644)
+			setupFS: func(ctx context.Context, fs *core.MockFileSystem) {
+				_ = fs.WriteFile(ctx, "file.txt", []byte("content"), 0644)
 			},
 			wantError: true,
 		},
@@ -334,8 +338,8 @@ func TestValidator_ValidateDependencyCheckConfig(t *testing.T) {
 					},
 				},
 			},
-			setupFS: func(fs *core.MockFileSystem) {
-				_ = fs.WriteFile("file.txt", []byte("content"), 0644)
+			setupFS: func(ctx context.Context, fs *core.MockFileSystem) {
+				_ = fs.WriteFile(ctx, "file.txt", []byte("content"), 0644)
 			},
 			wantError: true,
 		},
@@ -343,12 +347,13 @@ func TestValidator_ValidateDependencyCheckConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
 			fs := core.NewMockFileSystem()
-			tt.setupFS(fs)
+			tt.setupFS(ctx, fs)
 
 			validator := NewValidator(fs, tt.config, "", ".")
 
-			results, err := validator.Validate()
+			results, err := validator.Validate(ctx)
 			if err != nil {
 				t.Fatalf("Validate() error = %v", err)
 			}
@@ -372,7 +377,7 @@ func TestValidator_ValidateWorkspaceConfig(t *testing.T) {
 	tests := []struct {
 		name      string
 		config    *Config
-		setupFS   func(*core.MockFileSystem)
+		setupFS   func(context.Context, *core.MockFileSystem)
 		wantError bool
 	}{
 		{
@@ -391,9 +396,9 @@ func TestValidator_ValidateWorkspaceConfig(t *testing.T) {
 					},
 				},
 			},
-			setupFS: func(fs *core.MockFileSystem) {
-				_ = fs.WriteFile("module1/.version", []byte("1.0.0"), 0644)
-				_ = fs.WriteFile("module2/.version", []byte("2.0.0"), 0644)
+			setupFS: func(ctx context.Context, fs *core.MockFileSystem) {
+				_ = fs.WriteFile(ctx, "module1/.version", []byte("1.0.0"), 0644)
+				_ = fs.WriteFile(ctx, "module2/.version", []byte("2.0.0"), 0644)
 			},
 			wantError: false,
 		},
@@ -409,7 +414,7 @@ func TestValidator_ValidateWorkspaceConfig(t *testing.T) {
 					},
 				},
 			},
-			setupFS:   func(fs *core.MockFileSystem) {},
+			setupFS:   func(ctx context.Context, fs *core.MockFileSystem) {},
 			wantError: true,
 		},
 		{
@@ -428,9 +433,9 @@ func TestValidator_ValidateWorkspaceConfig(t *testing.T) {
 					},
 				},
 			},
-			setupFS: func(fs *core.MockFileSystem) {
-				_ = fs.WriteFile("module1/.version", []byte("1.0.0"), 0644)
-				_ = fs.WriteFile("module2/.version", []byte("2.0.0"), 0644)
+			setupFS: func(ctx context.Context, fs *core.MockFileSystem) {
+				_ = fs.WriteFile(ctx, "module1/.version", []byte("1.0.0"), 0644)
+				_ = fs.WriteFile(ctx, "module2/.version", []byte("2.0.0"), 0644)
 			},
 			wantError: true,
 		},
@@ -443,7 +448,7 @@ func TestValidator_ValidateWorkspaceConfig(t *testing.T) {
 					},
 				},
 			},
-			setupFS:   func(fs *core.MockFileSystem) {},
+			setupFS:   func(ctx context.Context, fs *core.MockFileSystem) {},
 			wantError: false,
 		},
 		{
@@ -455,19 +460,20 @@ func TestValidator_ValidateWorkspaceConfig(t *testing.T) {
 					},
 				},
 			},
-			setupFS:   func(fs *core.MockFileSystem) {},
+			setupFS:   func(ctx context.Context, fs *core.MockFileSystem) {},
 			wantError: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
 			fs := core.NewMockFileSystem()
-			tt.setupFS(fs)
+			tt.setupFS(ctx, fs)
 
 			validator := NewValidator(fs, tt.config, "", ".")
 
-			results, err := validator.Validate()
+			results, err := validator.Validate(ctx)
 			if err != nil {
 				t.Fatalf("Validate() error = %v", err)
 			}
@@ -575,10 +581,11 @@ func TestValidator_ValidateChangelogGeneratorConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
 			fs := core.NewMockFileSystem()
 			validator := NewValidator(fs, tt.config, "", ".")
 
-			results, err := validator.Validate()
+			results, err := validator.Validate(ctx)
 			if err != nil {
 				t.Fatalf("Validate() error = %v", err)
 			}
@@ -644,10 +651,11 @@ func TestValidator_ValidateAuditLogConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
 			fs := core.NewMockFileSystem()
 			validator := NewValidator(fs, tt.config, "", ".")
 
-			results, err := validator.Validate()
+			results, err := validator.Validate(ctx)
 			if err != nil {
 				t.Fatalf("Validate() error = %v", err)
 			}
@@ -797,7 +805,7 @@ func TestValidator_ValidateChangelogParserConfig(t *testing.T) {
 	tests := []struct {
 		name      string
 		config    *Config
-		setupFS   func(*core.MockFileSystem)
+		setupFS   func(context.Context, *core.MockFileSystem)
 		wantError bool
 	}{
 		{
@@ -811,8 +819,8 @@ func TestValidator_ValidateChangelogParserConfig(t *testing.T) {
 					},
 				},
 			},
-			setupFS: func(fs *core.MockFileSystem) {
-				_ = fs.WriteFile("CHANGELOG.md", []byte("# Changelog\n"), 0644)
+			setupFS: func(ctx context.Context, fs *core.MockFileSystem) {
+				_ = fs.WriteFile(ctx, "CHANGELOG.md", []byte("# Changelog\n"), 0644)
 			},
 			wantError: false,
 		},
@@ -826,7 +834,7 @@ func TestValidator_ValidateChangelogParserConfig(t *testing.T) {
 					},
 				},
 			},
-			setupFS:   func(fs *core.MockFileSystem) {},
+			setupFS:   func(ctx context.Context, fs *core.MockFileSystem) {},
 			wantError: true,
 		},
 		{
@@ -840,8 +848,8 @@ func TestValidator_ValidateChangelogParserConfig(t *testing.T) {
 					},
 				},
 			},
-			setupFS: func(fs *core.MockFileSystem) {
-				_ = fs.WriteFile("CHANGELOG.md", []byte("# Changelog\n"), 0644)
+			setupFS: func(ctx context.Context, fs *core.MockFileSystem) {
+				_ = fs.WriteFile(ctx, "CHANGELOG.md", []byte("# Changelog\n"), 0644)
 			},
 			wantError: true,
 		},
@@ -855,8 +863,8 @@ func TestValidator_ValidateChangelogParserConfig(t *testing.T) {
 					},
 				},
 			},
-			setupFS: func(fs *core.MockFileSystem) {
-				_ = fs.WriteFile("CHANGELOG.md", []byte("# Changelog\n"), 0644)
+			setupFS: func(ctx context.Context, fs *core.MockFileSystem) {
+				_ = fs.WriteFile(ctx, "CHANGELOG.md", []byte("# Changelog\n"), 0644)
 			},
 			wantError: false,
 		},
@@ -864,12 +872,13 @@ func TestValidator_ValidateChangelogParserConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
 			fs := core.NewMockFileSystem()
-			tt.setupFS(fs)
+			tt.setupFS(ctx, fs)
 
 			validator := NewValidator(fs, tt.config, "", ".")
 
-			results, err := validator.Validate()
+			results, err := validator.Validate(ctx)
 			if err != nil {
 				t.Fatalf("Validate() error = %v", err)
 			}
@@ -924,10 +933,11 @@ func TestValidator_ValidateReleaseGateConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
 			fs := core.NewMockFileSystem()
 			validator := NewValidator(fs, tt.config, "", ".")
 
-			results, err := validator.Validate()
+			results, err := validator.Validate(ctx)
 			if err != nil {
 				t.Fatalf("Validate() error = %v", err)
 			}
@@ -951,7 +961,7 @@ func TestValidator_ValidateExtensionConfigs(t *testing.T) {
 	tests := []struct {
 		name      string
 		config    *Config
-		setupFS   func(*core.MockFileSystem)
+		setupFS   func(context.Context, *core.MockFileSystem)
 		wantError bool
 	}{
 		{
@@ -965,10 +975,10 @@ func TestValidator_ValidateExtensionConfigs(t *testing.T) {
 					},
 				},
 			},
-			setupFS: func(fs *core.MockFileSystem) {
+			setupFS: func(ctx context.Context, fs *core.MockFileSystem) {
 				// Create the directory explicitly
-				_ = fs.MkdirAll("extensions/test", 0755)
-				_ = fs.WriteFile("extensions/test/extension.yaml", []byte("name: test"), 0644)
+				_ = fs.MkdirAll(ctx, "extensions/test", 0755)
+				_ = fs.WriteFile(ctx, "extensions/test/extension.yaml", []byte("name: test"), 0644)
 			},
 			wantError: false,
 		},
@@ -983,7 +993,7 @@ func TestValidator_ValidateExtensionConfigs(t *testing.T) {
 					},
 				},
 			},
-			setupFS:   func(fs *core.MockFileSystem) {},
+			setupFS:   func(ctx context.Context, fs *core.MockFileSystem) {},
 			wantError: true,
 		},
 		{
@@ -997,10 +1007,10 @@ func TestValidator_ValidateExtensionConfigs(t *testing.T) {
 					},
 				},
 			},
-			setupFS: func(fs *core.MockFileSystem) {
+			setupFS: func(ctx context.Context, fs *core.MockFileSystem) {
 				// Create directory with a file but no manifest
-				_ = fs.MkdirAll("extensions/no-manifest", 0755)
-				_ = fs.WriteFile("extensions/no-manifest/script.sh", []byte("#!/bin/bash"), 0755)
+				_ = fs.MkdirAll(ctx, "extensions/no-manifest", 0755)
+				_ = fs.WriteFile(ctx, "extensions/no-manifest/script.sh", []byte("#!/bin/bash"), 0755)
 			},
 			wantError: true,
 		},
@@ -1015,10 +1025,10 @@ func TestValidator_ValidateExtensionConfigs(t *testing.T) {
 					},
 				},
 			},
-			setupFS: func(fs *core.MockFileSystem) {
+			setupFS: func(ctx context.Context, fs *core.MockFileSystem) {
 				// Create directory with a file
-				_ = fs.MkdirAll("extensions/disabled", 0755)
-				_ = fs.WriteFile("extensions/disabled/script.sh", []byte("#!/bin/bash"), 0755)
+				_ = fs.MkdirAll(ctx, "extensions/disabled", 0755)
+				_ = fs.WriteFile(ctx, "extensions/disabled/script.sh", []byte("#!/bin/bash"), 0755)
 			},
 			wantError: false,
 		},
@@ -1038,11 +1048,11 @@ func TestValidator_ValidateExtensionConfigs(t *testing.T) {
 					},
 				},
 			},
-			setupFS: func(fs *core.MockFileSystem) {
-				_ = fs.MkdirAll("extensions/valid", 0755)
-				_ = fs.WriteFile("extensions/valid/extension.yaml", []byte("name: valid"), 0644)
-				_ = fs.MkdirAll("extensions/disabled", 0755)
-				_ = fs.WriteFile("extensions/disabled/script.sh", []byte("#!/bin/bash"), 0755)
+			setupFS: func(ctx context.Context, fs *core.MockFileSystem) {
+				_ = fs.MkdirAll(ctx, "extensions/valid", 0755)
+				_ = fs.WriteFile(ctx, "extensions/valid/extension.yaml", []byte("name: valid"), 0644)
+				_ = fs.MkdirAll(ctx, "extensions/disabled", 0755)
+				_ = fs.WriteFile(ctx, "extensions/disabled/script.sh", []byte("#!/bin/bash"), 0755)
 			},
 			wantError: false,
 		},
@@ -1050,12 +1060,13 @@ func TestValidator_ValidateExtensionConfigs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
 			fs := core.NewMockFileSystem()
-			tt.setupFS(fs)
+			tt.setupFS(ctx, fs)
 
 			validator := NewValidator(fs, tt.config, "", ".")
 
-			results, err := validator.Validate()
+			results, err := validator.Validate(ctx)
 			if err != nil {
 				t.Fatalf("Validate() error = %v", err)
 			}
@@ -1100,10 +1111,11 @@ func TestValidator_ValidateCommitParserPlugin(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
 			fs := core.NewMockFileSystem()
 			validator := NewValidator(fs, tt.config, "", ".")
 
-			_, err := validator.Validate()
+			_, err := validator.Validate(ctx)
 			if err != nil {
 				t.Fatalf("Validate() error = %v", err)
 			}
@@ -1159,10 +1171,11 @@ func TestValidator_ValidateVersionValidatorBranchConstraint(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
 			fs := core.NewMockFileSystem()
 			validator := NewValidator(fs, tt.config, "", ".")
 
-			results, err := validator.Validate()
+			results, err := validator.Validate(ctx)
 			if err != nil {
 				t.Fatalf("Validate() error = %v", err)
 			}
@@ -1201,10 +1214,11 @@ func TestValidator_ValidateNoPlugins(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
 			fs := core.NewMockFileSystem()
 			validator := NewValidator(fs, tt.config, "", ".")
 
-			results, err := validator.Validate()
+			results, err := validator.Validate(ctx)
 			if err != nil {
 				t.Fatalf("Validate() error = %v", err)
 			}
@@ -1227,6 +1241,7 @@ func TestValidator_ValidateNoPlugins(t *testing.T) {
 }
 
 func TestValidator_ValidateVersionValidatorNoRules(t *testing.T) {
+	ctx := context.Background()
 	config := &Config{
 		Plugins: &PluginConfig{
 			VersionValidator: &VersionValidatorConfig{
@@ -1239,7 +1254,7 @@ func TestValidator_ValidateVersionValidatorNoRules(t *testing.T) {
 	fs := core.NewMockFileSystem()
 	validator := NewValidator(fs, config, "", ".")
 
-	results, err := validator.Validate()
+	results, err := validator.Validate(ctx)
 	if err != nil {
 		t.Fatalf("Validate() error = %v", err)
 	}
@@ -1259,6 +1274,7 @@ func TestValidator_ValidateVersionValidatorNoRules(t *testing.T) {
 }
 
 func TestValidator_ValidateDependencyCheckNoFiles(t *testing.T) {
+	ctx := context.Background()
 	config := &Config{
 		Plugins: &PluginConfig{
 			DependencyCheck: &DependencyCheckConfig{
@@ -1271,7 +1287,7 @@ func TestValidator_ValidateDependencyCheckNoFiles(t *testing.T) {
 	fs := core.NewMockFileSystem()
 	validator := NewValidator(fs, config, "", ".")
 
-	results, err := validator.Validate()
+	results, err := validator.Validate(ctx)
 	if err != nil {
 		t.Fatalf("Validate() error = %v", err)
 	}
@@ -1291,6 +1307,7 @@ func TestValidator_ValidateDependencyCheckNoFiles(t *testing.T) {
 }
 
 func TestValidator_ValidateWorkspaceOverbreadExcludePattern(t *testing.T) {
+	ctx := context.Background()
 	config := &Config{
 		Workspace: &WorkspaceConfig{
 			Discovery: &DiscoveryConfig{
@@ -1302,7 +1319,7 @@ func TestValidator_ValidateWorkspaceOverbreadExcludePattern(t *testing.T) {
 	fs := core.NewMockFileSystem()
 	validator := NewValidator(fs, config, "", ".")
 
-	results, err := validator.Validate()
+	results, err := validator.Validate(ctx)
 	if err != nil {
 		t.Fatalf("Validate() error = %v", err)
 	}
@@ -1346,10 +1363,11 @@ func TestValidator_ValidateChangelogGeneratorCustomProvider(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
 			fs := core.NewMockFileSystem()
 			validator := NewValidator(fs, tt.config, "", ".")
 
-			results, err := validator.Validate()
+			results, err := validator.Validate(ctx)
 			if err != nil {
 				t.Fatalf("Validate() error = %v", err)
 			}

@@ -35,7 +35,7 @@ func (op *ShowOperation) Execute(ctx context.Context, mod *workspace.Module) err
 	vm := semver.NewVersionManager(op.fs, nil)
 
 	// Read current version
-	ver, err := vm.Read(mod.Path)
+	ver, err := vm.Read(ctx, mod.Path)
 	if err != nil {
 		return fmt.Errorf("failed to read version from %s: %w", mod.Path, err)
 	}
