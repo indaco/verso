@@ -1,6 +1,7 @@
 package config
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -47,27 +48,27 @@ func NewValidator(fs core.FileSystem, cfg *Config, configPath string, rootDir st
 }
 
 // Validate runs all validation checks and returns the results.
-func (v *Validator) Validate() ([]ValidationResult, error) {
+func (v *Validator) Validate(ctx context.Context) ([]ValidationResult, error) {
 	// Reset validations
 	v.validations = make([]ValidationResult, 0)
 
 	// Validate YAML syntax (by trying to load it)
-	v.validateYAMLSyntax()
+	v.validateYAMLSyntax(ctx)
 
 	// Validate plugin configurations
-	v.validatePluginConfigs()
+	v.validatePluginConfigs(ctx)
 
 	// Validate workspace configuration
-	v.validateWorkspaceConfig()
+	v.validateWorkspaceConfig(ctx)
 
 	// Validate extension configurations
-	v.validateExtensionConfigs()
+	v.validateExtensionConfigs(ctx)
 
 	return v.validations, nil
 }
 
 // validateYAMLSyntax checks if the config file is valid YAML.
-func (v *Validator) validateYAMLSyntax() {
+func (v *Validator) validateYAMLSyntax(ctx context.Context) {
 	if v.configPath == "" {
 		// No config file, use defaults
 		v.addValidation("YAML Syntax", true, "No .sley.yaml file found, using defaults", false)
@@ -75,7 +76,7 @@ func (v *Validator) validateYAMLSyntax() {
 	}
 
 	// Check if file exists
-	if _, err := v.fs.Stat(v.configPath); err != nil {
+	if _, err := v.fs.Stat(ctx, v.configPath); err != nil {
 		if os.IsNotExist(err) {
 			v.addValidation("YAML Syntax", true, "No .sley.yaml file found, using defaults", false)
 		} else {
@@ -89,7 +90,7 @@ func (v *Validator) validateYAMLSyntax() {
 }
 
 // validatePluginConfigs validates plugin-specific configurations.
-func (v *Validator) validatePluginConfigs() {
+func (v *Validator) validatePluginConfigs(ctx context.Context) {
 	if v.cfg == nil || v.cfg.Plugins == nil {
 		v.addValidation("Plugin Configuration", true, "No plugin configuration found (using defaults)", false)
 		return
@@ -102,10 +103,10 @@ func (v *Validator) validatePluginConfigs() {
 	v.validateVersionValidatorConfig()
 
 	// Validate dependency-check plugin
-	v.validateDependencyCheckConfig()
+	v.validateDependencyCheckConfig(ctx)
 
 	// Validate changelog-parser plugin
-	v.validateChangelogParserConfig()
+	v.validateChangelogParserConfig(ctx)
 
 	// Validate changelog-generator plugin
 	v.validateChangelogGeneratorConfig()
@@ -114,7 +115,7 @@ func (v *Validator) validatePluginConfigs() {
 	v.validateReleaseGateConfig()
 
 	// Validate audit-log plugin
-	v.validateAuditLogConfig()
+	v.validateAuditLogConfig(ctx)
 }
 
 // validateTagManagerConfig validates the tag-manager plugin configuration.
@@ -194,7 +195,7 @@ func (v *Validator) validateVersionValidatorConfig() {
 }
 
 // validateDependencyCheckConfig validates the dependency-check plugin configuration.
-func (v *Validator) validateDependencyCheckConfig() {
+func (v *Validator) validateDependencyCheckConfig(ctx context.Context) {
 	if v.cfg.Plugins.DependencyCheck == nil || !v.cfg.Plugins.DependencyCheck.Enabled {
 		return
 	}
@@ -222,7 +223,7 @@ func (v *Validator) validateDependencyCheckConfig() {
 			filePath = filepath.Join(v.rootDir, filePath)
 		}
 
-		if _, err := v.fs.Stat(filePath); err != nil {
+		if _, err := v.fs.Stat(ctx, filePath); err != nil {
 			if os.IsNotExist(err) {
 				v.addValidation("Plugin: dependency-check", false,
 					fmt.Sprintf("File %d: '%s' does not exist", i+1, file.Path), false)
@@ -253,7 +254,7 @@ func (v *Validator) validateDependencyCheckConfig() {
 }
 
 // validateChangelogParserConfig validates the changelog-parser plugin configuration.
-func (v *Validator) validateChangelogParserConfig() {
+func (v *Validator) validateChangelogParserConfig(ctx context.Context) {
 	if v.cfg.Plugins.ChangelogParser == nil || !v.cfg.Plugins.ChangelogParser.Enabled {
 		return
 	}
@@ -269,7 +270,7 @@ func (v *Validator) validateChangelogParserConfig() {
 		changelogPath = filepath.Join(v.rootDir, changelogPath)
 	}
 
-	if _, err := v.fs.Stat(changelogPath); err != nil {
+	if _, err := v.fs.Stat(ctx, changelogPath); err != nil {
 		if os.IsNotExist(err) {
 			v.addValidation("Plugin: changelog-parser", false,
 				fmt.Sprintf("Changelog file '%s' does not exist", cfg.Path), false)
@@ -380,7 +381,7 @@ func (v *Validator) validateReleaseGateConfig() {
 }
 
 // validateAuditLogConfig validates the audit-log plugin configuration.
-func (v *Validator) validateAuditLogConfig() {
+func (v *Validator) validateAuditLogConfig(ctx context.Context) {
 	if v.cfg.Plugins.AuditLog == nil || !v.cfg.Plugins.AuditLog.Enabled {
 		return
 	}
@@ -399,7 +400,7 @@ func (v *Validator) validateAuditLogConfig() {
 }
 
 // validateWorkspaceConfig validates workspace/multi-module configuration.
-func (v *Validator) validateWorkspaceConfig() {
+func (v *Validator) validateWorkspaceConfig(ctx context.Context) {
 	if v.cfg == nil || v.cfg.Workspace == nil {
 		return
 	}
@@ -411,7 +412,7 @@ func (v *Validator) validateWorkspaceConfig() {
 
 	// Validate explicit modules
 	if len(v.cfg.Workspace.Modules) > 0 {
-		v.validateExplicitModules()
+		v.validateExplicitModules(ctx)
 	}
 }
 
@@ -439,7 +440,7 @@ func (v *Validator) validateDiscoveryConfig() {
 }
 
 // validateExplicitModules validates explicitly configured modules.
-func (v *Validator) validateExplicitModules() {
+func (v *Validator) validateExplicitModules(ctx context.Context) {
 	modules := v.cfg.Workspace.Modules
 
 	// Check for duplicate module names
@@ -457,7 +458,7 @@ func (v *Validator) validateExplicitModules() {
 			modPath = filepath.Join(v.rootDir, modPath)
 		}
 
-		if _, err := v.fs.Stat(modPath); err != nil {
+		if _, err := v.fs.Stat(ctx, modPath); err != nil {
 			if os.IsNotExist(err) {
 				v.addValidation("Workspace: Modules", false,
 					fmt.Sprintf("Module '%s': path '%s' does not exist", mod.Name, mod.Path), false)
@@ -480,7 +481,7 @@ func (v *Validator) validateExplicitModules() {
 }
 
 // validateExtensionConfigs validates extension configurations.
-func (v *Validator) validateExtensionConfigs() {
+func (v *Validator) validateExtensionConfigs(ctx context.Context) {
 	if v.cfg == nil || len(v.cfg.Extensions) == 0 {
 		return
 	}
@@ -495,7 +496,7 @@ func (v *Validator) validateExtensionConfigs() {
 			extPath = filepath.Join(v.rootDir, extPath)
 		}
 
-		if _, err := v.fs.Stat(extPath); err != nil {
+		if _, err := v.fs.Stat(ctx, extPath); err != nil {
 			if os.IsNotExist(err) {
 				v.addValidation("Extensions", false,
 					fmt.Sprintf("Extension %d ('%s'): path '%s' does not exist", i+1, ext.Name, ext.Path), false)
@@ -510,7 +511,7 @@ func (v *Validator) validateExtensionConfigs() {
 		// Check for extension.yaml manifest file if the extension is enabled
 		if ext.Enabled {
 			manifestPath := filepath.Join(extPath, "extension.yaml")
-			if _, err := v.fs.Stat(manifestPath); err != nil {
+			if _, err := v.fs.Stat(ctx, manifestPath); err != nil {
 				if os.IsNotExist(err) {
 					v.addValidation("Extensions", false,
 						fmt.Sprintf("Extension %d ('%s'): manifest file 'extension.yaml' not found", i+1, ext.Name), false)
