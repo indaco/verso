@@ -35,7 +35,7 @@ func Run(cfg *config.Config) *cli.Command {
 // runDoctorCmd validates both configuration and .version files.
 func runDoctorCmd(ctx context.Context, cmd *cli.Command, cfg *config.Config) error {
 	// First, validate the configuration file
-	if err := validateConfiguration(cmd, cfg); err != nil {
+	if err := validateConfiguration(ctx, cmd, cfg); err != nil {
 		return err
 	}
 
@@ -56,7 +56,7 @@ func runDoctorCmd(ctx context.Context, cmd *cli.Command, cfg *config.Config) err
 }
 
 // validateConfiguration validates the .sley.yaml configuration file.
-func validateConfiguration(cmd *cli.Command, cfg *config.Config) error {
+func validateConfiguration(ctx context.Context, cmd *cli.Command, cfg *config.Config) error {
 	// Determine config file path and root directory
 	configPath := ".sley.yaml"
 	rootDir, err := os.Getwd()
@@ -76,7 +76,7 @@ func validateConfiguration(cmd *cli.Command, cfg *config.Config) error {
 	validator := config.NewValidator(fs, cfg, configPath, rootDir)
 
 	// Run validation
-	results, err := validator.Validate()
+	results, err := validator.Validate(ctx)
 	if err != nil {
 		return fmt.Errorf("validation failed: %w", err)
 	}
