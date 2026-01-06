@@ -19,7 +19,7 @@ func setupBenchmarkFS(numModules int) *core.MockFileSystem {
 		moduleName := fmt.Sprintf("module-%04d", i)
 		versionPath := filepath.Join("/project", moduleName, ".version")
 		fs.SetFile(versionPath, []byte("1.0.0"))
-		_ = fs.MkdirAll(filepath.Dir(versionPath), 0755)
+		_ = fs.MkdirAll(context.Background(), filepath.Dir(versionPath), 0755)
 	}
 
 	return fs
@@ -40,7 +40,7 @@ func setupBenchmarkFSWithNesting(numModules int, nestingLevel int) *core.MockFil
 		modulePath := filepath.Join(pathComponents...)
 		versionPath := filepath.Join(modulePath, ".version")
 		fs.SetFile(versionPath, []byte("1.0.0"))
-		_ = fs.MkdirAll(filepath.Dir(versionPath), 0755)
+		_ = fs.MkdirAll(context.Background(), filepath.Dir(versionPath), 0755)
 	}
 
 	return fs
@@ -55,7 +55,7 @@ func setupBenchmarkFSWithExcludes(numIncluded, numExcluded int) *core.MockFileSy
 		moduleName := fmt.Sprintf("module-%04d", i)
 		versionPath := filepath.Join("/project", moduleName, ".version")
 		fs.SetFile(versionPath, []byte("1.0.0"))
-		_ = fs.MkdirAll(filepath.Dir(versionPath), 0755)
+		_ = fs.MkdirAll(context.Background(), filepath.Dir(versionPath), 0755)
 	}
 
 	// Add excluded modules
@@ -65,7 +65,7 @@ func setupBenchmarkFSWithExcludes(numIncluded, numExcluded int) *core.MockFileSy
 		moduleName := fmt.Sprintf("excluded-%04d", i)
 		versionPath := filepath.Join("/project", excludeDir, moduleName, ".version")
 		fs.SetFile(versionPath, []byte("1.0.0"))
-		_ = fs.MkdirAll(filepath.Dir(versionPath), 0755)
+		_ = fs.MkdirAll(context.Background(), filepath.Dir(versionPath), 0755)
 	}
 
 	return fs
@@ -77,7 +77,7 @@ func BenchmarkDetector_10Modules(b *testing.B) {
 	detector := NewDetector(fs, cfg)
 
 	for b.Loop() {
-		_, err := detector.DiscoverModules("/project")
+		_, err := detector.DiscoverModules(context.Background(), "/project")
 		if err != nil {
 			b.Fatalf("DiscoverModules failed: %v", err)
 		}
@@ -90,7 +90,7 @@ func BenchmarkDetector_50Modules(b *testing.B) {
 	detector := NewDetector(fs, cfg)
 
 	for b.Loop() {
-		_, err := detector.DiscoverModules("/project")
+		_, err := detector.DiscoverModules(context.Background(), "/project")
 		if err != nil {
 			b.Fatalf("DiscoverModules failed: %v", err)
 		}
@@ -103,7 +103,7 @@ func BenchmarkDetector_100Modules(b *testing.B) {
 	detector := NewDetector(fs, cfg)
 
 	for b.Loop() {
-		_, err := detector.DiscoverModules("/project")
+		_, err := detector.DiscoverModules(context.Background(), "/project")
 		if err != nil {
 			b.Fatalf("DiscoverModules failed: %v", err)
 		}
@@ -116,7 +116,7 @@ func BenchmarkDetector_200Modules(b *testing.B) {
 	detector := NewDetector(fs, cfg)
 
 	for b.Loop() {
-		_, err := detector.DiscoverModules("/project")
+		_, err := detector.DiscoverModules(context.Background(), "/project")
 		if err != nil {
 			b.Fatalf("DiscoverModules failed: %v", err)
 		}
@@ -129,7 +129,7 @@ func BenchmarkDetector_NestedModules(b *testing.B) {
 	detector := NewDetector(fs, cfg)
 
 	for b.Loop() {
-		_, err := detector.DiscoverModules("/project")
+		_, err := detector.DiscoverModules(context.Background(), "/project")
 		if err != nil {
 			b.Fatalf("DiscoverModules failed: %v", err)
 		}
@@ -142,7 +142,7 @@ func BenchmarkDetector_WithExcludes(b *testing.B) {
 	detector := NewDetector(fs, cfg)
 
 	for b.Loop() {
-		_, err := detector.DiscoverModules("/project")
+		_, err := detector.DiscoverModules(context.Background(), "/project")
 		if err != nil {
 			b.Fatalf("DiscoverModules failed: %v", err)
 		}
@@ -163,7 +163,7 @@ func BenchmarkDetector_MaxDepthLimit(b *testing.B) {
 	detector := NewDetector(fs, cfg)
 
 	for b.Loop() {
-		_, err := detector.DiscoverModules("/project")
+		_, err := detector.DiscoverModules(context.Background(), "/project")
 		if err != nil {
 			b.Fatalf("DiscoverModules failed: %v", err)
 		}
@@ -184,7 +184,7 @@ func BenchmarkDetector_NonRecursive(b *testing.B) {
 	detector := NewDetector(fs, cfg)
 
 	for b.Loop() {
-		_, err := detector.DiscoverModules("/project")
+		_, err := detector.DiscoverModules(context.Background(), "/project")
 		if err != nil {
 			b.Fatalf("DiscoverModules failed: %v", err)
 		}
@@ -199,7 +199,7 @@ func BenchmarkDetectContext_SingleModule(b *testing.B) {
 	detector := NewDetector(fs, cfg)
 
 	for b.Loop() {
-		_, err := detector.DetectContext("/project")
+		_, err := detector.DetectContext(context.Background(), "/project")
 		if err != nil {
 			b.Fatalf("DetectContext failed: %v", err)
 		}
@@ -212,7 +212,7 @@ func BenchmarkDetectContext_MultiModule(b *testing.B) {
 	detector := NewDetector(fs, cfg)
 
 	for b.Loop() {
-		_, err := detector.DetectContext("/project")
+		_, err := detector.DetectContext(context.Background(), "/project")
 		if err != nil {
 			b.Fatalf("DetectContext failed: %v", err)
 		}
@@ -242,7 +242,7 @@ func BenchmarkDetectContext_ExplicitModules(b *testing.B) {
 	detector := NewDetector(fs, cfg)
 
 	for b.Loop() {
-		_, err := detector.DetectContext("/project")
+		_, err := detector.DetectContext(context.Background(), "/project")
 		if err != nil {
 			b.Fatalf("DetectContext failed: %v", err)
 		}
@@ -276,7 +276,7 @@ func BenchmarkDetector_RealFS_10Modules(b *testing.B) {
 	detector := NewDetector(core.NewOSFileSystem(), cfg)
 
 	for b.Loop() {
-		_, err := detector.DiscoverModules(tmpDir)
+		_, err := detector.DiscoverModules(context.Background(), tmpDir)
 		if err != nil {
 			b.Fatalf("DiscoverModules failed: %v", err)
 		}
@@ -308,7 +308,7 @@ func BenchmarkDetector_RealFS_50Modules(b *testing.B) {
 	detector := NewDetector(core.NewOSFileSystem(), cfg)
 
 	for b.Loop() {
-		_, err := detector.DiscoverModules(tmpDir)
+		_, err := detector.DiscoverModules(context.Background(), tmpDir)
 		if err != nil {
 			b.Fatalf("DiscoverModules failed: %v", err)
 		}
@@ -340,7 +340,7 @@ func BenchmarkDetector_RealFS_100Modules(b *testing.B) {
 	detector := NewDetector(core.NewOSFileSystem(), cfg)
 
 	for b.Loop() {
-		_, err := detector.DiscoverModules(tmpDir)
+		_, err := detector.DiscoverModules(context.Background(), tmpDir)
 		if err != nil {
 			b.Fatalf("DiscoverModules failed: %v", err)
 		}

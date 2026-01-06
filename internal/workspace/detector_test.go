@@ -1,6 +1,7 @@
 package workspace
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -12,12 +13,13 @@ import (
 // setupTestFS creates a mock filesystem with test files.
 func setupTestFS(files map[string]string) *core.MockFileSystem {
 	fs := core.NewMockFileSystem()
+	ctx := context.Background()
 	for path, content := range files {
 		fs.SetFile(path, []byte(content))
 		// Create all parent directories up to root
 		dir := filepath.Dir(path)
 		for dir != "." && dir != "/" {
-			_ = fs.MkdirAll(dir, 0755)
+			_ = fs.MkdirAll(ctx, dir, 0755)
 			dir = filepath.Dir(dir)
 		}
 	}
@@ -33,7 +35,7 @@ func TestDetector_SingleModule_InCWD(t *testing.T) {
 	cfg := &config.Config{}
 	detector := NewDetector(fs, cfg)
 
-	ctx, err := detector.DetectContext("/project")
+	ctx, err := detector.DetectContext(context.Background(), "/project")
 	if err != nil {
 		t.Fatalf("DetectContext failed: %v", err)
 	}
@@ -58,7 +60,7 @@ func TestDetector_MultiModule(t *testing.T) {
 	cfg := &config.Config{}
 	detector := NewDetector(fs, cfg)
 
-	ctx, err := detector.DetectContext("/project")
+	ctx, err := detector.DetectContext(context.Background(), "/project")
 	if err != nil {
 		t.Fatalf("DetectContext failed: %v", err)
 	}
@@ -101,7 +103,7 @@ func TestDetector_NoModules(t *testing.T) {
 	cfg := &config.Config{}
 	detector := NewDetector(fs, cfg)
 
-	ctx, err := detector.DetectContext("/project")
+	ctx, err := detector.DetectContext(context.Background(), "/project")
 	if err != nil {
 		t.Fatalf("DetectContext failed: %v", err)
 	}
@@ -120,7 +122,7 @@ func TestDetector_SingleModuleInSubdir(t *testing.T) {
 	cfg := &config.Config{}
 	detector := NewDetector(fs, cfg)
 
-	ctx, err := detector.DetectContext("/project")
+	ctx, err := detector.DetectContext(context.Background(), "/project")
 	if err != nil {
 		t.Fatalf("DetectContext failed: %v", err)
 	}
@@ -152,7 +154,7 @@ func TestDetector_ExcludePatterns(t *testing.T) {
 	cfg := &config.Config{}
 	detector := NewDetector(fs, cfg)
 
-	ctx, err := detector.DetectContext("/project")
+	ctx, err := detector.DetectContext(context.Background(), "/project")
 	if err != nil {
 		t.Fatalf("DetectContext failed: %v", err)
 	}
@@ -189,7 +191,7 @@ func TestDetector_MaxDepth(t *testing.T) {
 	}
 
 	detector := NewDetector(fs, cfg)
-	modules, err := detector.DiscoverModules("/project")
+	modules, err := detector.DiscoverModules(context.Background(), "/project")
 	if err != nil {
 		t.Fatalf("DiscoverModules failed: %v", err)
 	}
@@ -227,7 +229,7 @@ func TestDetector_ExplicitModules(t *testing.T) {
 
 	detector := NewDetector(fs, cfg)
 
-	ctx, err := detector.DetectContext("/project")
+	ctx, err := detector.DetectContext(context.Background(), "/project")
 	if err != nil {
 		t.Fatalf("DetectContext failed: %v", err)
 	}
@@ -267,7 +269,7 @@ func TestDetector_RecursiveDisabled(t *testing.T) {
 	}
 
 	detector := NewDetector(fs, cfg)
-	modules, err := detector.DiscoverModules("/project")
+	modules, err := detector.DiscoverModules(context.Background(), "/project")
 	if err != nil {
 		t.Fatalf("DiscoverModules failed: %v", err)
 	}
@@ -296,7 +298,7 @@ func TestDetector_ModuleVersionLoading(t *testing.T) {
 	cfg := &config.Config{}
 	detector := NewDetector(fs, cfg)
 
-	modules, err := detector.DiscoverModules("/project")
+	modules, err := detector.DiscoverModules(context.Background(), "/project")
 	if err != nil {
 		t.Fatalf("DiscoverModules failed: %v", err)
 	}
@@ -331,7 +333,7 @@ func TestDetector_SemverignoreIntegration(t *testing.T) {
 	cfg := &config.Config{}
 	detector := NewDetector(fs, cfg)
 
-	modules, err := detector.DiscoverModules("/project")
+	modules, err := detector.DiscoverModules(context.Background(), "/project")
 	if err != nil {
 		t.Fatalf("DiscoverModules failed: %v", err)
 	}
@@ -365,7 +367,7 @@ func TestDetector_DiscoveryDisabled(t *testing.T) {
 	}
 
 	detector := NewDetector(fs, cfg)
-	modules, err := detector.DiscoverModules("/project")
+	modules, err := detector.DiscoverModules(context.Background(), "/project")
 	if err != nil {
 		t.Fatalf("DiscoverModules failed: %v", err)
 	}
@@ -432,7 +434,7 @@ func TestDetector_RealFilesystem(t *testing.T) {
 	cfg := &config.Config{}
 	detector := NewDetector(core.NewOSFileSystem(), cfg)
 
-	ctx, err := detector.DetectContext(tmpDir)
+	ctx, err := detector.DetectContext(context.Background(), tmpDir)
 	if err != nil {
 		t.Fatalf("DetectContext failed: %v", err)
 	}

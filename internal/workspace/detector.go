@@ -3,6 +3,7 @@
 package workspace
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -77,10 +78,10 @@ func NewDetector(fs core.FileSystem, cfg *config.Config) *Detector {
 //  5. If 2+ found -> MultiModule
 //
 // If the configuration has explicit modules defined, they are used instead of discovery.
-func (d *Detector) DetectContext(cwd string) (*Context, error) {
+func (d *Detector) DetectContext(ctx context.Context, cwd string) (*Context, error) {
 	// First, check for .version in current directory
 	versionPath := filepath.Join(cwd, ".version")
-	if _, err := d.fs.Stat(versionPath); err == nil {
+	if _, err := d.fs.Stat(ctx, versionPath); err == nil {
 		return &Context{
 			Mode: SingleModule,
 			Path: versionPath,
@@ -89,7 +90,7 @@ func (d *Detector) DetectContext(cwd string) (*Context, error) {
 
 	// If explicit modules are configured, use them
 	if d.cfg.HasExplicitModules() {
-		modules, err := d.loadExplicitModules(cwd)
+		modules, err := d.loadExplicitModules(ctx, cwd)
 		if err != nil {
 			return nil, fmt.Errorf("failed to load explicit modules: %w", err)
 		}
@@ -110,7 +111,7 @@ func (d *Detector) DetectContext(cwd string) (*Context, error) {
 	}
 
 	// Otherwise, discover modules in subdirectories
-	modules, err := d.DiscoverModules(cwd)
+	modules, err := d.DiscoverModules(ctx, cwd)
 	if err != nil {
 		return nil, fmt.Errorf("failed to discover modules: %w", err)
 	}
@@ -132,7 +133,7 @@ func (d *Detector) DetectContext(cwd string) (*Context, error) {
 
 // DiscoverModules finds all .version files in subdirectories according to configuration.
 // It respects exclude patterns, max depth, and recursive settings.
-func (d *Detector) DiscoverModules(root string) ([]*Module, error) {
+func (d *Detector) DiscoverModules(ctx context.Context, root string) ([]*Module, error) {
 	discovery := d.cfg.GetDiscoveryConfig()
 
 	// Check if discovery is disabled
@@ -141,7 +142,7 @@ func (d *Detector) DiscoverModules(root string) ([]*Module, error) {
 	}
 
 	// Load ignore patterns
-	ignorePatterns, err := d.loadIgnorePatterns(root)
+	ignorePatterns, err := d.loadIgnorePatterns(ctx, root)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load ignore patterns: %w", err)
 	}
@@ -156,11 +157,11 @@ func (d *Detector) DiscoverModules(root string) ([]*Module, error) {
 	matcher := newPatternMatcher(allPatterns)
 
 	// Scan directories recursively
-	return d.scanDirectory(root, 0, root, discovery, matcher)
+	return d.scanDirectory(ctx, root, 0, root, discovery, matcher)
 }
 
 // scanDirectory scans a single directory for .version files and subdirectories.
-func (d *Detector) scanDirectory(dir string, depth int, root string, discovery *config.DiscoveryConfig, matcher *patternMatcher) ([]*Module, error) {
+func (d *Detector) scanDirectory(ctx context.Context, dir string, depth int, root string, discovery *config.DiscoveryConfig, matcher *patternMatcher) ([]*Module, error) {
 	// Check max depth
 	maxDepth := 10
 	if discovery.MaxDepth != nil {
@@ -171,7 +172,7 @@ func (d *Detector) scanDirectory(dir string, depth int, root string, discovery *
 	}
 
 	// Read directory entries
-	entries, err := d.fs.ReadDir(dir)
+	entries, err := d.fs.ReadDir(ctx, dir)
 	if err != nil {
 		// Skip directories we can't read (permission issues, etc.)
 		return nil, nil
@@ -201,7 +202,7 @@ func (d *Detector) scanDirectory(dir string, depth int, root string, discovery *
 
 			// Scan subdirectory recursively if enabled
 			if recursive {
-				subModules, err := d.scanDirectory(fullPath, depth+1, root, discovery, matcher)
+				subModules, err := d.scanDirectory(ctx, fullPath, depth+1, root, discovery, matcher)
 				if err != nil {
 					return nil, err
 				}
@@ -209,7 +210,7 @@ func (d *Detector) scanDirectory(dir string, depth int, root string, discovery *
 			}
 		} else if name == ".version" {
 			// Found a .version file
-			module, err := d.createModule(fullPath, root)
+			module, err := d.createModule(ctx, fullPath, root)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create module for %s: %w", fullPath, err)
 			}
@@ -221,7 +222,7 @@ func (d *Detector) scanDirectory(dir string, depth int, root string, discovery *
 }
 
 // createModule creates a Module from a .version file path.
-func (d *Detector) createModule(versionPath string, root string) (*Module, error) {
+func (d *Detector) createModule(ctx context.Context, versionPath string, root string) (*Module, error) {
 	// Get relative path
 	relPath, err := filepath.Rel(root, versionPath)
 	if err != nil {
@@ -234,7 +235,7 @@ func (d *Detector) createModule(versionPath string, root string) (*Module, error
 
 	// Load current version
 	vm := semver.NewVersionManager(d.fs, nil)
-	version, err := vm.Read(versionPath)
+	version, err := vm.Read(ctx, versionPath)
 	if err != nil {
 		// If we can't read the version, use empty string
 		return &Module{
@@ -256,7 +257,7 @@ func (d *Detector) createModule(versionPath string, root string) (*Module, error
 }
 
 // loadExplicitModules loads modules from explicit configuration.
-func (d *Detector) loadExplicitModules(root string) ([]*Module, error) {
+func (d *Detector) loadExplicitModules(ctx context.Context, root string) ([]*Module, error) {
 	if d.cfg.Workspace == nil || len(d.cfg.Workspace.Modules) == 0 {
 		return nil, nil
 	}
@@ -275,12 +276,12 @@ func (d *Detector) loadExplicitModules(root string) ([]*Module, error) {
 		}
 
 		// Check if file exists
-		if _, err := d.fs.Stat(versionPath); err != nil {
+		if _, err := d.fs.Stat(ctx, versionPath); err != nil {
 			return nil, fmt.Errorf("module %s: version file not found at %s", moduleConfig.Name, versionPath)
 		}
 
 		// Create module
-		module, err := d.createModuleFromConfig(moduleConfig, versionPath, root)
+		module, err := d.createModuleFromConfig(ctx, moduleConfig, versionPath, root)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create module %s: %w", moduleConfig.Name, err)
 		}
@@ -292,7 +293,7 @@ func (d *Detector) loadExplicitModules(root string) ([]*Module, error) {
 }
 
 // createModuleFromConfig creates a Module from explicit configuration.
-func (d *Detector) createModuleFromConfig(moduleConfig config.ModuleConfig, versionPath string, root string) (*Module, error) {
+func (d *Detector) createModuleFromConfig(ctx context.Context, moduleConfig config.ModuleConfig, versionPath string, root string) (*Module, error) {
 	// Get relative path
 	relPath, err := filepath.Rel(root, versionPath)
 	if err != nil {
@@ -303,7 +304,7 @@ func (d *Detector) createModuleFromConfig(moduleConfig config.ModuleConfig, vers
 
 	// Load current version
 	vm := semver.NewVersionManager(d.fs, nil)
-	version, err := vm.Read(versionPath)
+	version, err := vm.Read(ctx, versionPath)
 	if err != nil {
 		// If we can't read the version, use empty string
 		return &Module{
@@ -325,9 +326,9 @@ func (d *Detector) createModuleFromConfig(moduleConfig config.ModuleConfig, vers
 }
 
 // loadIgnorePatterns loads patterns from .sleyignore file if it exists.
-func (d *Detector) loadIgnorePatterns(root string) ([]string, error) {
+func (d *Detector) loadIgnorePatterns(ctx context.Context, root string) ([]string, error) {
 	ignorePath := filepath.Join(root, ".sleyignore")
-	data, err := d.fs.ReadFile(ignorePath)
+	data, err := d.fs.ReadFile(ctx, ignorePath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
