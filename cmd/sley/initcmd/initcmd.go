@@ -319,7 +319,15 @@ func printSuccessSummary(path string, versionCreated, configCreated bool, plugin
 }
 
 // isTerminalInteractive checks if stdin is connected to a terminal.
+// Returns false during test execution to prevent interactive prompts from blocking.
 func isTerminalInteractive() bool {
+	// Check if running in test mode (go test sets -test. flags)
+	for _, arg := range os.Args {
+		if len(arg) > 6 && arg[:6] == "-test." {
+			return false
+		}
+	}
+
 	fileInfo, err := os.Stdin.Stat()
 	if err != nil {
 		return false
