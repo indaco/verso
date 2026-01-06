@@ -54,7 +54,7 @@ func (op *BumpOperation) Execute(ctx context.Context, mod *workspace.Module) err
 	vm := semver.NewVersionManager(op.fs, nil)
 
 	// Read current version
-	currentVer, err := vm.Read(mod.Path)
+	currentVer, err := vm.Read(ctx, mod.Path)
 	if err != nil {
 		return fmt.Errorf("failed to read version from %s: %w", mod.Path, err)
 	}
@@ -115,7 +115,7 @@ func (op *BumpOperation) Execute(ctx context.Context, mod *workspace.Module) err
 	}
 
 	// Write the new version
-	if err := vm.Save(mod.Path, newVer); err != nil {
+	if err := vm.Save(ctx, mod.Path, newVer); err != nil {
 		return fmt.Errorf("failed to write version to %s: %w", mod.Path, err)
 	}
 

@@ -35,7 +35,7 @@ func (op *ValidateOperation) Execute(ctx context.Context, mod *workspace.Module)
 	vm := semver.NewVersionManager(op.fs, nil)
 
 	// Read and validate version
-	ver, err := vm.Read(mod.Path)
+	ver, err := vm.Read(ctx, mod.Path)
 	if err != nil {
 		return fmt.Errorf("invalid version file at %s: %w", mod.Path, err)
 	}
