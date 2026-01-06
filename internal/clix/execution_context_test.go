@@ -516,6 +516,308 @@ func TestFilterModulesBySelection_MixedExistingAndNonExisting(t *testing.T) {
 	}
 }
 
+func TestWithDefaultAll(t *testing.T) {
+	opts := &executionOptions{}
+
+	// Apply the option
+	option := WithDefaultAll()
+	option(opts)
+
+	if !opts.defaultToAll {
+		t.Error("expected defaultToAll to be true")
+	}
+}
+
+func TestGetExecutionContext_WithDefaultAll(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	// Create multiple modules
+	modA := tmpDir + "/module-a"
+	modB := tmpDir + "/module-b"
+	if err := os.MkdirAll(modA, 0755); err != nil {
+		t.Fatalf("failed to create module-a dir: %v", err)
+	}
+	if err := os.MkdirAll(modB, 0755); err != nil {
+		t.Fatalf("failed to create module-b dir: %v", err)
+	}
+	if err := os.WriteFile(modA+"/.version", []byte("1.0.0"), 0644); err != nil {
+		t.Fatalf("failed to write module-a version: %v", err)
+	}
+	if err := os.WriteFile(modB+"/.version", []byte("2.0.0"), 0644); err != nil {
+		t.Fatalf("failed to write module-b version: %v", err)
+	}
+
+	cfg := &config.Config{}
+
+	cmd := &cli.Command{
+		Name: "test",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{Name: "all"},
+			&cli.BoolFlag{Name: "yes"},
+			&cli.BoolFlag{Name: "non-interactive"},
+			&cli.StringFlag{Name: "path"},
+			&cli.StringFlag{Name: "module"},
+		},
+	}
+
+	// Change to tmpDir
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("failed to get working directory: %v", err)
+	}
+	defer func() { _ = os.Chdir(origDir) }()
+	if err := os.Chdir(tmpDir); err != nil {
+		t.Fatalf("failed to change to tmpDir: %v", err)
+	}
+
+	ctx := context.Background()
+	execCtx, err := GetExecutionContext(ctx, cmd, cfg, WithDefaultAll())
+	if err != nil {
+		t.Fatalf("GetExecutionContext() error = %v", err)
+	}
+
+	// With WithDefaultAll, should select all modules without prompting
+	if execCtx.Mode != MultiModuleMode {
+		t.Errorf("Mode = %v, want MultiModuleMode", execCtx.Mode)
+	}
+
+	if len(execCtx.Modules) == 0 {
+		t.Error("expected modules to be discovered")
+	}
+
+	if !execCtx.Selection.All {
+		t.Error("expected Selection.All to be true with WithDefaultAll")
+	}
+}
+
+func TestGetMultiModuleContext_DiscoverModulesError(t *testing.T) {
+	// Create a directory that will cause discovery to fail
+	tmpDir := t.TempDir()
+
+	cfg := &config.Config{
+		Workspace: &config.WorkspaceConfig{
+			Discovery: &config.DiscoveryConfig{
+				Enabled: func() *bool { b := true; return &b }(),
+				// Set max depth to 0 to limit discovery
+				MaxDepth: func() *int { d := 0; return &d }(),
+			},
+		},
+	}
+
+	cmd := &cli.Command{
+		Name: "test",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{Name: "all"},
+			&cli.BoolFlag{Name: "yes"},
+			&cli.BoolFlag{Name: "non-interactive"},
+			&cli.StringFlag{Name: "module"},
+		},
+	}
+
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("failed to get working directory: %v", err)
+	}
+	defer func() { _ = os.Chdir(origDir) }()
+	if err := os.Chdir(tmpDir); err != nil {
+		t.Fatalf("failed to change to tmpDir: %v", err)
+	}
+
+	ctx := context.Background()
+	_, err = getMultiModuleContext(ctx, cmd, cfg, &executionOptions{}, false)
+	if err == nil {
+		t.Fatal("expected error for no modules found")
+	}
+
+	if !contains(err.Error(), "no modules found") {
+		t.Errorf("expected 'no modules found' error, got: %v", err)
+	}
+}
+
+func TestGetExecutionContext_DefaultPathConfigFallback(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	// Config with default path
+	cfg := &config.Config{
+		Path: ".version",
+	}
+
+	cmd := &cli.Command{
+		Name: "test",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{Name: "all"},
+			&cli.BoolFlag{Name: "yes"},
+			&cli.BoolFlag{Name: "non-interactive"},
+			&cli.StringFlag{Name: "path"},
+			&cli.StringFlag{Name: "module"},
+		},
+	}
+
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("failed to get working directory: %v", err)
+	}
+	defer func() { _ = os.Chdir(origDir) }()
+	if err := os.Chdir(tmpDir); err != nil {
+		t.Fatalf("failed to change to tmpDir: %v", err)
+	}
+
+	ctx := context.Background()
+	execCtx, err := GetExecutionContext(ctx, cmd, cfg)
+	if err != nil {
+		t.Fatalf("GetExecutionContext() error = %v", err)
+	}
+
+	// With no modules found, should fall back to config path
+	if execCtx.Mode != SingleModuleMode {
+		t.Errorf("Mode = %v, want SingleModuleMode", execCtx.Mode)
+	}
+
+	if execCtx.Path != ".version" {
+		t.Errorf("Path = %v, want .version", execCtx.Path)
+	}
+}
+
+func TestGetMultiModuleContext_WithDefaultToAll(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	// Create modules
+	modA := tmpDir + "/module-a"
+	modB := tmpDir + "/module-b"
+	if err := os.MkdirAll(modA, 0755); err != nil {
+		t.Fatalf("failed to create module-a dir: %v", err)
+	}
+	if err := os.MkdirAll(modB, 0755); err != nil {
+		t.Fatalf("failed to create module-b dir: %v", err)
+	}
+	if err := os.WriteFile(modA+"/.version", []byte("1.0.0"), 0644); err != nil {
+		t.Fatalf("failed to write module-a version: %v", err)
+	}
+	if err := os.WriteFile(modB+"/.version", []byte("2.0.0"), 0644); err != nil {
+		t.Fatalf("failed to write module-b version: %v", err)
+	}
+
+	cfg := &config.Config{}
+
+	cmd := &cli.Command{
+		Name: "test",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{Name: "all"},
+			&cli.BoolFlag{Name: "yes"},
+			&cli.BoolFlag{Name: "non-interactive"},
+			&cli.StringFlag{Name: "module"},
+		},
+	}
+
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("failed to get working directory: %v", err)
+	}
+	defer func() { _ = os.Chdir(origDir) }()
+	if err := os.Chdir(tmpDir); err != nil {
+		t.Fatalf("failed to change to tmpDir: %v", err)
+	}
+
+	ctx := context.Background()
+
+	// With defaultToAll, should skip TUI prompt
+	execCtx, err := getMultiModuleContext(ctx, cmd, cfg, &executionOptions{defaultToAll: true}, false)
+	if err != nil {
+		t.Fatalf("getMultiModuleContext() error = %v", err)
+	}
+
+	if execCtx.Mode != MultiModuleMode {
+		t.Errorf("Mode = %v, want MultiModuleMode", execCtx.Mode)
+	}
+
+	if len(execCtx.Modules) == 0 {
+		t.Error("expected modules to be discovered")
+	}
+
+	if !execCtx.Selection.All {
+		t.Error("expected Selection.All to be true with defaultToAll")
+	}
+}
+
+func TestGetExecutionContext_UnexpectedDetectionMode(t *testing.T) {
+	// This tests the default case in the switch which should never happen
+	// but exists for safety. We can't easily trigger it without modifying
+	// the detector behavior, so this test documents that the path exists.
+	t.Skip("Cannot easily test unexpected detection mode without modifying detector")
+}
+
+func TestGetExecutionContext_MultiModuleWithNonInteractive(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	// Create multiple modules
+	modA := tmpDir + "/module-a"
+	modB := tmpDir + "/module-b"
+	if err := os.MkdirAll(modA, 0755); err != nil {
+		t.Fatalf("failed to create module-a dir: %v", err)
+	}
+	if err := os.MkdirAll(modB, 0755); err != nil {
+		t.Fatalf("failed to create module-b dir: %v", err)
+	}
+	if err := os.WriteFile(modA+"/.version", []byte("1.0.0"), 0644); err != nil {
+		t.Fatalf("failed to write module-a version: %v", err)
+	}
+	if err := os.WriteFile(modB+"/.version", []byte("2.0.0"), 0644); err != nil {
+		t.Fatalf("failed to write module-b version: %v", err)
+	}
+
+	enabled := true
+	recursive := true
+	maxDepth := 10
+	cfg := &config.Config{
+		Path: ".version",
+		Workspace: &config.WorkspaceConfig{
+			Discovery: &config.DiscoveryConfig{
+				Enabled:   &enabled,
+				Recursive: &recursive,
+				MaxDepth:  &maxDepth,
+			},
+		},
+	}
+
+	cmd := &cli.Command{
+		Name: "test",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{Name: "all"},
+			&cli.BoolFlag{Name: "yes"},
+			&cli.BoolFlag{Name: "non-interactive"},
+			&cli.StringFlag{Name: "path"},
+			&cli.StringFlag{Name: "module"},
+		},
+	}
+
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("failed to get working directory: %v", err)
+	}
+	defer func() { _ = os.Chdir(origDir) }()
+	if err := os.Chdir(tmpDir); err != nil {
+		t.Fatalf("failed to change to tmpDir: %v", err)
+	}
+
+	ctx := context.Background()
+
+	// Without any multi-module flags, should detect multi-module
+	// and fall back to getMultiModuleContext
+	execCtx, err := GetExecutionContext(ctx, cmd, cfg)
+	if err != nil {
+		t.Fatalf("GetExecutionContext() error = %v", err)
+	}
+
+	// Should detect multi-module mode and auto-select all in non-interactive
+	if execCtx.Mode != MultiModuleMode {
+		t.Errorf("Mode = %v, want MultiModuleMode", execCtx.Mode)
+	}
+
+	if len(execCtx.Modules) == 0 {
+		t.Error("expected modules to be discovered")
+	}
+}
+
 func TestGetExecutionContext_PathFlagSet(t *testing.T) {
 	tmpDir := t.TempDir()
 	versionPath := tmpDir + "/.version"

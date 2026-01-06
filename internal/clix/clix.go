@@ -2,7 +2,6 @@ package clix
 
 import (
 	"context"
-	stderrors "errors"
 	"fmt"
 	"os"
 
@@ -20,7 +19,7 @@ var FromCommandFn = fromCommand
 // fromCommand extracts the --path and --strict flags from a cli.Command,
 // and passes them to GetOrInitVersionFile.
 func fromCommand(cmd *cli.Command) (bool, error) {
-	return getOrInitVersionFile(cmd.String("path"), cmd.Bool("strict"))
+	return GetOrInitVersionFile(cmd.String("path"), cmd.Bool("strict"))
 }
 
 // GetOrInitVersionFile initializes the version file at the given path
@@ -41,22 +40,6 @@ func GetOrInitVersionFile(path string, strict bool) (bool, error) {
 	}
 	if created {
 		fmt.Printf("Auto-initialized %s with default version\n", path)
-	}
-	return created, nil
-}
-
-// getOrInitVersionFile is the internal implementation that wraps errors for CLI display.
-//
-// Deprecated: Use GetOrInitVersionFile and handle errors at the CLI layer.
-func getOrInitVersionFile(path string, strict bool) (bool, error) {
-	created, err := GetOrInitVersionFile(path, strict)
-	if err != nil {
-		// Convert typed errors to CLI exits for backward compatibility
-		var vfErr *apperrors.VersionFileNotFoundError
-		if stderrors.As(err, &vfErr) {
-			return false, cli.Exit(vfErr.Error(), 1)
-		}
-		return false, err
 	}
 	return created, nil
 }

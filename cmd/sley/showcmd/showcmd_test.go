@@ -47,6 +47,7 @@ func TestCLI_ShowCommand_Strict_MissingFile(t *testing.T) {
 		err := appCli.Run(context.Background(), []string{"sley", "show", "--strict"})
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1) // Exit with non-zero status to signal error to parent process
 		}
 		return
 	}

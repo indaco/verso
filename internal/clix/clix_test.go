@@ -19,7 +19,7 @@ func TestGetOrInitVersionFile(t *testing.T) {
 		tmpDir := t.TempDir()
 		tmpFile := testutils.WriteTempVersionFile(t, tmpDir, "0.1.0")
 
-		created, err := getOrInitVersionFile(tmpFile, true)
+		created, err := GetOrInitVersionFile(tmpFile, true)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -31,7 +31,7 @@ func TestGetOrInitVersionFile(t *testing.T) {
 	t.Run("strict=true and file missing", func(t *testing.T) {
 		missingPath := filepath.Join(t.TempDir(), "missing.version")
 
-		created, err := getOrInitVersionFile(missingPath, true)
+		created, err := GetOrInitVersionFile(missingPath, true)
 		if err == nil {
 			t.Fatal("expected error, got nil")
 		}
@@ -44,7 +44,7 @@ func TestGetOrInitVersionFile(t *testing.T) {
 		tmpDir := t.TempDir()
 		targetPath := filepath.Join(tmpDir, ".version")
 
-		created, err := getOrInitVersionFile(targetPath, false)
+		created, err := GetOrInitVersionFile(targetPath, false)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -70,7 +70,7 @@ func TestGetOrInitVersionFile_InitError(t *testing.T) {
 
 	targetPath := "/test/.version"
 
-	created, err := getOrInitVersionFile(targetPath, false)
+	created, err := GetOrInitVersionFile(targetPath, false)
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
