@@ -136,7 +136,7 @@ func TestSaveConfigFn_WriteFileFn_Error(t *testing.T) {
 		if err == nil {
 			t.Fatal("expected error, got nil")
 		}
-		want := "failed to write config data: simulated write failure"
+		want := `failed to write config to ".sley.yaml": simulated write failure`
 		if err.Error() != want {
 			t.Errorf("unexpected error. got: %q, want: %q", err.Error(), want)
 		}
