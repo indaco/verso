@@ -115,7 +115,7 @@ func InstallFromURL(urlStr, configPath, extensionDirectory string) error {
 	fmt.Printf("Cloning %s...\n", repoURL.String())
 	tempDir, err := CloneRepository(repoURL)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to clone repository %s: %w", repoURL.String(), err)
 	}
 
 	// Clean up temp directory after installation

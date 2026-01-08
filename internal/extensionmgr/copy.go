@@ -1,6 +1,7 @@
 package extensionmgr
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -37,7 +38,7 @@ var (
 func copyDir(src, dst string) error {
 	return walkFn(src, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return err
+			return fmt.Errorf("walk error at %q: %w", path, err)
 		}
 
 		skipFile, skipDir := shouldSkipEntry(info)
@@ -50,7 +51,7 @@ func copyDir(src, dst string) error {
 
 		rel, err := relFn(src, path)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to compute relative path from %q to %q: %w", src, path, err)
 		}
 
 		target := filepath.Join(dst, rel)
@@ -68,18 +69,18 @@ func copyDir(src, dst string) error {
 func copyFile(src, dst string, perm os.FileMode) error {
 	in, err := openSrcFile(src)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to open source %q: %w", src, err)
 	}
 	defer in.Close()
 
 	out, err := openDstFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, perm)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create destination %q: %w", dst, err)
 	}
 	defer out.Close()
 
 	if _, err := copyFn(out, in); err != nil {
-		return err
+		return fmt.Errorf("failed to copy %q to %q: %w", src, dst, err)
 	}
 
 	return nil
