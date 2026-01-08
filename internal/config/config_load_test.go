@@ -23,6 +23,28 @@ func TestLoadConfig(t *testing.T) {
 		checkConfigPath(t, cfg, false, "env-defined/.version")
 	})
 
+	t.Run("from env with path traversal rejected", func(t *testing.T) {
+		os.Setenv("SLEY_PATH", "../../../etc/.version")
+		defer os.Unsetenv("SLEY_PATH")
+
+		cfg, err := LoadConfigFn()
+		checkError(t, err, true)
+		checkConfigNil(t, cfg, true)
+		if err != nil && err.Error() != "invalid SLEY_PATH: path traversal not allowed, use absolute path instead" {
+			t.Errorf("unexpected error message: %v", err)
+		}
+	})
+
+	t.Run("from env with absolute path allowed", func(t *testing.T) {
+		os.Setenv("SLEY_PATH", "/tmp/project/.version")
+		defer os.Unsetenv("SLEY_PATH")
+
+		cfg, err := LoadConfigFn()
+		checkError(t, err, false)
+		checkConfigNil(t, cfg, false)
+		checkConfigPath(t, cfg, false, "/tmp/project/.version")
+	})
+
 	t.Run("valid yaml file with path", func(t *testing.T) {
 		content := "path: ./my-folder/.version\n"
 		tmpPath := testutils.WriteTempConfig(t, content)
