@@ -28,7 +28,7 @@ func createAnnotatedTag(name, message string) error {
 		if stderrMsg != "" {
 			return fmt.Errorf("%s: %w", stderrMsg, err)
 		}
-		return err
+		return fmt.Errorf("git tag (annotated) failed: %w", err)
 	}
 	return nil
 }
@@ -44,7 +44,7 @@ func createLightweightTag(name string) error {
 		if stderrMsg != "" {
 			return fmt.Errorf("%s: %w", stderrMsg, err)
 		}
-		return err
+		return fmt.Errorf("git tag (lightweight) failed: %w", err)
 	}
 	return nil
 }
@@ -98,7 +98,7 @@ func pushTag(name string) error {
 		if stderrMsg != "" {
 			return fmt.Errorf("%s: %w", stderrMsg, err)
 		}
-		return err
+		return fmt.Errorf("git push tag failed: %w", err)
 	}
 	return nil
 }
@@ -120,7 +120,7 @@ func ListTags(pattern string) ([]string, error) {
 		if stderrMsg != "" {
 			return nil, fmt.Errorf("%s: %w", stderrMsg, err)
 		}
-		return nil, err
+		return nil, fmt.Errorf("git tag list failed: %w", err)
 	}
 
 	output := strings.TrimSpace(stdout.String())
@@ -142,7 +142,7 @@ func DeleteTag(name string) error {
 		if stderrMsg != "" {
 			return fmt.Errorf("%s: %w", stderrMsg, err)
 		}
-		return err
+		return fmt.Errorf("git tag delete failed: %w", err)
 	}
 	return nil
 }

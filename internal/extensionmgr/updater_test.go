@@ -119,7 +119,7 @@ func TestAddExtensionToConfig_ReadFileError(t *testing.T) {
 	}
 
 	err := AddExtensionToConfig(invalidPath, extension)
-	if err == nil || !os.IsNotExist(err) {
+	if err == nil || !errors.Is(err, os.ErrNotExist) {
 		t.Fatalf("expected file not found error, got: %v", err)
 	}
 }
