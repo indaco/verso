@@ -70,7 +70,18 @@ func (v SemVersion) String() string {
 const maxVersionLength = 128
 
 // ParseVersion parses a semantic version string and returns a SemVersion.
-// Returns an error if the version format is invalid or exceeds maxVersionLength.
+//
+// Supported formats:
+//   - "1.2.3" (basic version)
+//   - "v1.2.3" (with optional v prefix)
+//   - "1.2.3-alpha.1" (with pre-release identifier)
+//   - "1.2.3+build.123" (with build metadata)
+//   - "1.2.3-rc.1+build.456" (with both)
+//
+// Returns errInvalidVersion (wrapped) when:
+//   - Input exceeds maxVersionLength (128 characters)
+//   - Format doesn't match major.minor.patch pattern
+//   - Major, minor, or patch cannot be parsed as integers
 func ParseVersion(s string) (SemVersion, error) {
 	trimmed := strings.TrimSpace(s)
 	if len(trimmed) > maxVersionLength {
@@ -120,7 +131,14 @@ func BumpNext(v SemVersion) (SemVersion, error) {
 	return SemVersion{Major: v.Major, Minor: v.Minor, Patch: v.Patch + 1}, nil
 }
 
-// BumpByLabel bumps the version using an explicit label (patch, minor, major).
+// BumpByLabel bumps the version using an explicit label.
+//
+// Supported labels:
+//   - "patch": increments patch (1.2.3 -> 1.2.4)
+//   - "minor": increments minor, resets patch (1.2.3 -> 1.3.0)
+//   - "major": increments major, resets minor and patch (1.2.3 -> 2.0.0)
+//
+// Returns an error if label is not one of: patch, minor, major.
 func BumpByLabel(v SemVersion, label string) (SemVersion, error) {
 	switch label {
 	case "patch":

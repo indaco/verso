@@ -34,6 +34,10 @@ func DefaultVersionManager() *VersionManager {
 }
 
 // Read reads a version from the given path.
+//
+// Returns an error if:
+//   - The file cannot be read (not found, permission denied, etc.)
+//   - The file content is not a valid semantic version
 func (m *VersionManager) Read(ctx context.Context, path string) (SemVersion, error) {
 	data, err := m.fs.ReadFile(ctx, path)
 	if err != nil {
@@ -43,6 +47,11 @@ func (m *VersionManager) Read(ctx context.Context, path string) (SemVersion, err
 }
 
 // Save writes a version to the given path.
+// Creates parent directories if they don't exist.
+//
+// Returns an error if:
+//   - Parent directory cannot be created
+//   - File cannot be written (permission denied, disk full, etc.)
 func (m *VersionManager) Save(ctx context.Context, path string, version SemVersion) error {
 	// Ensure parent directory exists
 	if err := m.fs.MkdirAll(ctx, filepath.Dir(path), core.PermDirDefault); err != nil {
@@ -88,6 +97,17 @@ func (m *VersionManager) InitializeWithFeedback(ctx context.Context, path string
 }
 
 // Update reads, bumps, and saves the version.
+//
+// Parameters:
+//   - bumpType: one of "patch", "minor", "major"
+//   - pre: pre-release label to set (empty to clear)
+//   - meta: build metadata to set (empty to clear unless preserve is true)
+//   - preserve: if true, keeps existing build metadata when meta is empty
+//
+// Returns an error if:
+//   - Version file cannot be read or parsed
+//   - bumpType is not one of: patch, minor, major
+//   - Version file cannot be saved
 func (m *VersionManager) Update(ctx context.Context, path string, bumpType string, pre string, meta string, preserve bool) error {
 	version, err := m.Read(ctx, path)
 	if err != nil {
@@ -120,9 +140,20 @@ func (m *VersionManager) Update(ctx context.Context, path string, bumpType strin
 }
 
 // UpdatePreRelease updates only the pre-release portion of the version.
-// If label is provided, it switches to that label (starting at .1).
-// If label is empty, it increments the existing pre-release number.
-// Returns an error if no label is provided and the version has no pre-release.
+//
+// Behavior:
+//   - If label is provided, switches to that label (e.g., "alpha" -> "alpha.1")
+//   - If label is empty, increments the existing pre-release number
+//
+// Parameters:
+//   - label: new pre-release label, or empty to increment existing
+//   - meta: build metadata to set (empty to clear unless preserve is true)
+//   - preserve: if true, keeps existing build metadata when meta is empty
+//
+// Returns an error if:
+//   - Version file cannot be read or parsed
+//   - label is empty and current version has no pre-release
+//   - Version file cannot be saved
 func (m *VersionManager) UpdatePreRelease(ctx context.Context, path string, label string, meta string, preserve bool) error {
 	version, err := m.Read(ctx, path)
 	if err != nil {
