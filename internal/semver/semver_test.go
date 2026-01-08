@@ -195,6 +195,18 @@ func TestParseVersion_ErrorCases(t *testing.T) {
 			t.Errorf("expected ErrInvalidVersion, got %v", err)
 		}
 	})
+
+	t.Run("version string too long (ReDoS prevention)", func(t *testing.T) {
+		// Create a version string that exceeds maxVersionLength
+		longVersion := "1.0.0-" + strings.Repeat("a", maxVersionLength)
+		_, err := ParseVersion(longVersion)
+		if err == nil || !errors.Is(err, errInvalidVersion) {
+			t.Errorf("expected ErrInvalidVersion for too-long version, got %v", err)
+		}
+		if err != nil && !strings.Contains(err.Error(), "exceeds maximum length") {
+			t.Errorf("expected error message about maximum length, got %v", err)
+		}
+	})
 }
 
 func TestParseVersion_InvalidFormat(t *testing.T) {

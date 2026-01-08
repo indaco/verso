@@ -57,10 +57,19 @@ func (v SemVersion) String() string {
 	return s
 }
 
+// maxVersionLength is the maximum allowed length for a version string.
+// This prevents potential ReDoS attacks on the regex parser.
+const maxVersionLength = 128
+
 // ParseVersion parses a semantic version string and returns a SemVersion.
-// Returns an error if the version format is invalid.
+// Returns an error if the version format is invalid or exceeds maxVersionLength.
 func ParseVersion(s string) (SemVersion, error) {
-	matches := versionRegex.FindStringSubmatch(strings.TrimSpace(s))
+	trimmed := strings.TrimSpace(s)
+	if len(trimmed) > maxVersionLength {
+		return SemVersion{}, fmt.Errorf("%w: version string exceeds maximum length of %d", errInvalidVersion, maxVersionLength)
+	}
+
+	matches := versionRegex.FindStringSubmatch(trimmed)
 	if len(matches) < 4 {
 		return SemVersion{}, errInvalidVersion
 	}
