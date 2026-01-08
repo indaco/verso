@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/goccy/go-yaml"
 	"github.com/indaco/sley/internal/core"
@@ -44,7 +45,12 @@ var (
 func loadConfig() (*Config, error) {
 	// Highest priority: ENV variable
 	if envPath := os.Getenv("SLEY_PATH"); envPath != "" {
-		return &Config{Path: envPath}, nil
+		cleanPath := filepath.Clean(envPath)
+		// Reject relative paths with traversal (use absolute paths instead)
+		if strings.Contains(cleanPath, "..") {
+			return nil, fmt.Errorf("invalid SLEY_PATH: path traversal not allowed, use absolute path instead")
+		}
+		return &Config{Path: cleanPath}, nil
 	}
 
 	// Second priority: YAML file
