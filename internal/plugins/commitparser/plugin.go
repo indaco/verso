@@ -27,6 +27,8 @@ var (
 
 type CommitParser interface {
 	Name() string
+	Description() string
+	Version() string
 	Parse(commits []string) (string, error)
 }
 
