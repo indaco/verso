@@ -9,6 +9,8 @@ import (
 // to infer version bumps and validate changelog completeness.
 type ChangelogInferrer interface {
 	Name() string
+	Description() string
+	Version() string
 	InferBumpType() (string, error)
 	ValidateHasEntries() error
 }

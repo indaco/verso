@@ -17,6 +17,8 @@ import (
 type mockCommitParser struct{ name string }
 
 func (m *mockCommitParser) Name() string                   { return m.name }
+func (m *mockCommitParser) Description() string            { return "mock commit parser" }
+func (m *mockCommitParser) Version() string                { return "v1.0.0" }
 func (m *mockCommitParser) Parse([]string) (string, error) { return "patch", nil }
 
 type mockTagManager struct{ name string }

@@ -17,9 +17,9 @@ type fakeCommitParser struct {
 	parse func([]string) (string, error)
 }
 
-func (f fakeCommitParser) Name() string {
-	return f.name
-}
+func (f fakeCommitParser) Name() string        { return f.name }
+func (f fakeCommitParser) Description() string { return "fake commit parser" }
+func (f fakeCommitParser) Version() string     { return "v1.0.0" }
 
 func (f fakeCommitParser) Parse(commits []string) (string, error) {
 	return f.parse(commits)

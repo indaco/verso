@@ -11,9 +11,9 @@ type MockCommitParser struct {
 	Err   error
 }
 
-func (m MockCommitParser) Name() string {
-	return "mock"
-}
+func (m MockCommitParser) Name() string        { return "mock" }
+func (m MockCommitParser) Description() string { return "mock commit parser" }
+func (m MockCommitParser) Version() string     { return "v1.0.0" }
 func (m MockCommitParser) Parse(_ []string) (string, error) {
 	return m.Label, m.Err
 }
