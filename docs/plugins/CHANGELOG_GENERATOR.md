@@ -69,6 +69,7 @@ plugins:
 | `header-template`          | string | (built-in)       | Path to custom header template                                       |
 | `repository`               | object | auto-detect      | Git repository configuration for links                               |
 | `groups`                   | array  | (defaults)       | Full custom commit grouping rules (ignored in keepachangelog format) |
+| `use-default-icons`        | bool   | false            | Enable predefined icons for all groups and contributors              |
 | `group-icons`              | map    | (none)           | Add icons to default groups by label (ignored in keepachangelog)     |
 | `exclude-patterns`         | array  | (defaults)       | Regex patterns for commits to exclude                                |
 | `include-non-conventional` | bool   | false            | Include non-conventional commits in "Other Changes"                  |
@@ -177,11 +178,56 @@ Example output:
 
 **Note**: Group configuration only applies when using the `grouped` format. The `keepachangelog` format uses fixed standard sections and ignores custom groups.
 
-There are two ways to configure commit groups (for `grouped` format):
+There are three ways to configure commit groups (for `grouped` format):
 
-#### Option 1: Add Icons to Defaults (Recommended)
+#### Option 1: Use Default Icons (Simplest)
 
-Use `group-icons` to add icons while keeping default patterns and labels:
+Enable `use-default-icons` to automatically apply predefined icons to all groups and contributors:
+
+```yaml
+plugins:
+  changelog-generator:
+    enabled: true
+    use-default-icons: true
+    contributors:
+      enabled: true
+```
+
+This applies the following default icons:
+
+| Group         | Icon |
+| ------------- | ---- |
+| Enhancements  | 🚀   |
+| Fixes         | 🩹   |
+| Refactors     | 💅   |
+| Documentation | 📖   |
+| Performance   | ⚡   |
+| Styling       | 🎨   |
+| Tests         | ✅   |
+| Chores        | 🏡   |
+| CI            | 🤖   |
+| Build         | 📦   |
+| Reverts       | ◀️   |
+
+The default contributor icon is ❤️.
+
+You can override specific icons while using defaults for the rest:
+
+```yaml
+plugins:
+  changelog-generator:
+    enabled: true
+    use-default-icons: true
+    group-icons:
+      Enhancements: "✨" # Override just this one
+    contributors:
+      enabled: true
+      icon: "⭐" # Override contributor icon
+```
+
+#### Option 2: Add Icons to Defaults
+
+Use `group-icons` to manually add icons while keeping default patterns and labels:
 
 ```yaml
 group-icons:
@@ -200,7 +246,9 @@ group-icons:
 
 Keys must match default labels exactly. You can specify only the icons you want.
 
-#### Option 2: Full Custom Groups
+**Note**: Consider using `use-default-icons: true` instead for a simpler configuration with the same result.
+
+#### Option 3: Full Custom Groups
 
 Use `groups` for complete control over patterns, labels, and order:
 
@@ -547,6 +595,20 @@ plugins:
     mode: "versioned"
     repository:
       auto-detect: true
+```
+
+### With Default Icons
+
+```yaml
+plugins:
+  changelog-generator:
+    enabled: true
+    mode: "versioned"
+    use-default-icons: true
+    repository:
+      auto-detect: true
+    contributors:
+      enabled: true
 ```
 
 ### GitLab Self-Hosted

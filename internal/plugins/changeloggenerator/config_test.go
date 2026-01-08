@@ -342,3 +342,150 @@ func TestFromConfigStruct_GroupsOverridesGroupIcons(t *testing.T) {
 		t.Errorf("expected empty icon when Groups provided, got %q", cfg.Groups[0].Icon)
 	}
 }
+
+func TestFromConfigStruct_UseDefaultIcons(t *testing.T) {
+	// Test that UseDefaultIcons applies default icons to all groups
+	input := &config.ChangelogGeneratorConfig{
+		Enabled:         true,
+		UseDefaultIcons: true,
+	}
+
+	cfg := FromConfigStruct(input)
+
+	// Should use default groups with icons applied
+	if len(cfg.Groups) == 0 {
+		t.Fatal("expected default groups")
+	}
+
+	// Verify default icons are applied to groups
+	iconsByLabel := make(map[string]string)
+	for _, g := range cfg.Groups {
+		iconsByLabel[g.Label] = g.Icon
+	}
+
+	// Check specific default icons are applied
+	if iconsByLabel["Enhancements"] != DefaultGroupIcons["Enhancements"] {
+		t.Errorf("Enhancements icon = %q, want %q", iconsByLabel["Enhancements"], DefaultGroupIcons["Enhancements"])
+	}
+	if iconsByLabel["Fixes"] != DefaultGroupIcons["Fixes"] {
+		t.Errorf("Fixes icon = %q, want %q", iconsByLabel["Fixes"], DefaultGroupIcons["Fixes"])
+	}
+	if iconsByLabel["Refactors"] != DefaultGroupIcons["Refactors"] {
+		t.Errorf("Refactors icon = %q, want %q", iconsByLabel["Refactors"], DefaultGroupIcons["Refactors"])
+	}
+	if iconsByLabel["Documentation"] != DefaultGroupIcons["Documentation"] {
+		t.Errorf("Documentation icon = %q, want %q", iconsByLabel["Documentation"], DefaultGroupIcons["Documentation"])
+	}
+
+	// Verify UseDefaultIcons flag is set
+	if !cfg.UseDefaultIcons {
+		t.Error("expected UseDefaultIcons to be true")
+	}
+
+	// Verify default contributor icon is applied
+	if cfg.Contributors == nil {
+		t.Fatal("expected Contributors to be non-nil")
+	}
+	if cfg.Contributors.Icon != DefaultContributorIcon {
+		t.Errorf("Contributors.Icon = %q, want %q", cfg.Contributors.Icon, DefaultContributorIcon)
+	}
+}
+
+func TestFromConfigStruct_UseDefaultIconsWithOverrides(t *testing.T) {
+	// Test that user-defined GroupIcons override defaults when UseDefaultIcons is true
+	input := &config.ChangelogGeneratorConfig{
+		Enabled:         true,
+		UseDefaultIcons: true,
+		GroupIcons: map[string]string{
+			"Enhancements": "custom-rocket", // Override default
+			"Fixes":        "custom-bug",    // Override default
+		},
+	}
+
+	cfg := FromConfigStruct(input)
+
+	iconsByLabel := make(map[string]string)
+	for _, g := range cfg.Groups {
+		iconsByLabel[g.Label] = g.Icon
+	}
+
+	// User-defined icons should override defaults
+	if iconsByLabel["Enhancements"] != "custom-rocket" {
+		t.Errorf("Enhancements icon = %q, want 'custom-rocket'", iconsByLabel["Enhancements"])
+	}
+	if iconsByLabel["Fixes"] != "custom-bug" {
+		t.Errorf("Fixes icon = %q, want 'custom-bug'", iconsByLabel["Fixes"])
+	}
+
+	// Non-overridden groups should use defaults
+	if iconsByLabel["Refactors"] != DefaultGroupIcons["Refactors"] {
+		t.Errorf("Refactors icon = %q, want %q (default)", iconsByLabel["Refactors"], DefaultGroupIcons["Refactors"])
+	}
+	if iconsByLabel["Documentation"] != DefaultGroupIcons["Documentation"] {
+		t.Errorf("Documentation icon = %q, want %q (default)", iconsByLabel["Documentation"], DefaultGroupIcons["Documentation"])
+	}
+}
+
+func TestFromConfigStruct_UseDefaultIconsContributorOverride(t *testing.T) {
+	// Test that user-defined contributor icon overrides default
+	input := &config.ChangelogGeneratorConfig{
+		Enabled:         true,
+		UseDefaultIcons: true,
+		Contributors: &config.ContributorsConfig{
+			Enabled: true,
+			Icon:    "custom-heart",
+		},
+	}
+
+	cfg := FromConfigStruct(input)
+
+	// User-defined contributor icon should override default
+	if cfg.Contributors.Icon != "custom-heart" {
+		t.Errorf("Contributors.Icon = %q, want 'custom-heart'", cfg.Contributors.Icon)
+	}
+}
+
+func TestFromConfigStruct_UseDefaultIconsFalse(t *testing.T) {
+	// Test that UseDefaultIcons=false doesn't apply icons
+	input := &config.ChangelogGeneratorConfig{
+		Enabled:         true,
+		UseDefaultIcons: false,
+	}
+
+	cfg := FromConfigStruct(input)
+
+	// Groups should have no icons
+	for _, g := range cfg.Groups {
+		if g.Icon != "" {
+			t.Errorf("Group %q should have no icon when UseDefaultIcons is false, got %q", g.Label, g.Icon)
+		}
+	}
+
+	// Contributors should have no icon
+	if cfg.Contributors.Icon != "" {
+		t.Errorf("Contributors.Icon should be empty when UseDefaultIcons is false, got %q", cfg.Contributors.Icon)
+	}
+}
+
+func TestDefaultGroupIcons(t *testing.T) {
+	// Verify all default group labels have corresponding icons
+	groups := DefaultGroups()
+	for _, g := range groups {
+		if _, ok := DefaultGroupIcons[g.Label]; !ok {
+			t.Errorf("missing default icon for group label %q", g.Label)
+		}
+	}
+
+	// Verify expected number of default icons
+	expectedCount := len(groups)
+	if len(DefaultGroupIcons) != expectedCount {
+		t.Errorf("DefaultGroupIcons has %d entries, want %d", len(DefaultGroupIcons), expectedCount)
+	}
+}
+
+func TestDefaultContributorIcon(t *testing.T) {
+	// Verify default contributor icon is set
+	if DefaultContributorIcon == "" {
+		t.Error("DefaultContributorIcon should not be empty")
+	}
+}

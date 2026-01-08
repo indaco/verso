@@ -169,6 +169,13 @@ type ChangelogGeneratorConfig struct {
 	// and a warning is printed listing the skipped commits.
 	IncludeNonConventional bool `yaml:"include-non-conventional,omitempty"`
 
+	// UseDefaultIcons enables predefined icons for all commit groups and contributors.
+	// When true, default icons (emojis) are automatically applied to commit group headers
+	// and the contributors section. User-defined GroupIcons or Contributors.Icon values
+	// will override the defaults for specific entries. This is a convenient shorthand
+	// instead of manually specifying all icons via group-icons.
+	UseDefaultIcons bool `yaml:"use-default-icons,omitempty"`
+
 	// GroupIcons maps default group labels to icons. Use this to add icons to default
 	// groups without redefining patterns and labels. Ignored if Groups is specified.
 	// Keys must match default labels: Enhancements, Fixes, Refactors, Documentation,

@@ -29,26 +29,35 @@ plugins:
       # repo: "myproject"
 
     # =========================================================================
-    # OPTION 1: Add icons to default groups (RECOMMENDED)
+    # OPTION 1: Use default icons (SIMPLEST - RECOMMENDED)
     # =========================================================================
-    # Use group-icons to add icons while keeping default patterns and labels.
-    # Keys must match default labels exactly: Enhancements, Fixes, Refactors,
-    # Documentation, Performance, Styling, Tests, Chores, CI, Build, Reverts
-    group-icons:
-      Enhancements: "🚀"
-      Fixes: "🩹"
-      Refactors: "💅"
-      Documentation: "📖"
-      Performance: "⚡"
-      Styling: "🎨"
-      Tests: "✅"
-      Chores: "🏡"
-      CI: "🤖"
-      Build: "📦"
-      Reverts: "◀️"
+    # Enable use-default-icons to automatically apply predefined icons to all
+    # groups and contributors. This is the simplest way to get styled changelogs.
+    use-default-icons: true
 
     # =========================================================================
-    # OPTION 2: Full custom groups (uncomment to use instead of group-icons)
+    # OPTION 2: Add icons to default groups (uncomment to use instead)
+    # =========================================================================
+    # Use group-icons to manually add icons while keeping default patterns and
+    # labels. Keys must match default labels exactly: Enhancements, Fixes,
+    # Refactors, Documentation, Performance, Styling, Tests, Chores, CI, Build,
+    # Reverts. Consider using use-default-icons: true instead for simplicity.
+    #
+    # group-icons:
+    #   Enhancements: "🚀"
+    #   Fixes: "🩹"
+    #   Refactors: "💅"
+    #   Documentation: "📖"
+    #   Performance: "⚡"
+    #   Styling: "🎨"
+    #   Tests: "✅"
+    #   Chores: "🏡"
+    #   CI: "🤖"
+    #   Build: "📦"
+    #   Reverts: "◀️"
+
+    # =========================================================================
+    # OPTION 3: Full custom groups (uncomment to use instead)
     # =========================================================================
     # Use groups for complete control over patterns, labels, icons, and order.
     # When groups is specified, group-icons is ignored.

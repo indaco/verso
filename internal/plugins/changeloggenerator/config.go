@@ -2,6 +2,25 @@ package changeloggenerator
 
 import "github.com/indaco/sley/internal/config"
 
+// DefaultGroupIcons maps default group labels to their icons.
+// These are used when UseDefaultIcons is enabled.
+var DefaultGroupIcons = map[string]string{
+	"Enhancements":  "\U0001F680",   // rocket 🚀
+	"Fixes":         "\U0001FA79",   // adhesive bandage 🩹
+	"Refactors":     "\U0001F485",   // nail polish 💅
+	"Documentation": "\U0001F4D6",   // open book 📖
+	"Performance":   "\u26A1",       // high voltage ⚡
+	"Styling":       "\U0001F3A8",   // artist palette 🎨
+	"Tests":         "\u2705",       // check mark button  ✅
+	"Chores":        "\U0001F3E1",   // house with garden 🏡
+	"CI":            "\U0001F916",   // robot 🤖
+	"Build":         "\U0001F4E6",   // package 📦
+	"Reverts":       "\u25C0\uFE0F", // reverse button ◀️
+}
+
+// DefaultContributorIcon is the default icon for the contributors section.
+const DefaultContributorIcon = "\u2764\uFE0F" // red heart ❤️
+
 // Config holds the internal configuration for the changelog generator plugin.
 type Config struct {
 	// Enabled controls whether the plugin is active.
@@ -36,6 +55,11 @@ type Config struct {
 	// IncludeNonConventional includes non-conventional commits in "Other Changes" section.
 	// When false (default), these commits are skipped with a warning.
 	IncludeNonConventional bool
+
+	// UseDefaultIcons enables default icons for commit groups and contributors.
+	// When true, predefined icons are applied to default groups and the contributors section.
+	// User-defined GroupIcons or Contributors.Icon can override specific defaults.
+	UseDefaultIcons bool
 
 	// GroupIcons maps default group labels to icons (used when Groups is empty).
 	GroupIcons map[string]string
@@ -136,6 +160,7 @@ func FromConfigStruct(cfg *config.ChangelogGeneratorConfig) *Config {
 		HeaderTemplate:         cfg.HeaderTemplate,
 		ExcludePatterns:        cfg.ExcludePatterns,
 		IncludeNonConventional: cfg.IncludeNonConventional,
+		UseDefaultIcons:        cfg.UseDefaultIcons,
 	}
 
 	// Convert repository config
@@ -164,13 +189,19 @@ func FromConfigStruct(cfg *config.ChangelogGeneratorConfig) *Config {
 			}
 		}
 	} else {
-		// Use defaults, optionally with icons from GroupIcons
+		// Use defaults, optionally with icons
 		result.Groups = DefaultGroups()
-		if len(cfg.GroupIcons) > 0 {
-			result.GroupIcons = cfg.GroupIcons
-			// Apply icons to default groups by label
-			for i, g := range result.Groups {
-				if icon, ok := cfg.GroupIcons[g.Label]; ok {
+		result.GroupIcons = cfg.GroupIcons
+
+		// Apply icons to default groups by label
+		// Priority: user-defined GroupIcons > DefaultGroupIcons (when UseDefaultIcons is true)
+		for i, g := range result.Groups {
+			// First check for user-defined icon override
+			if icon, ok := cfg.GroupIcons[g.Label]; ok {
+				result.Groups[i].Icon = icon
+			} else if cfg.UseDefaultIcons {
+				// Fall back to default icons when UseDefaultIcons is enabled
+				if icon, ok := DefaultGroupIcons[g.Label]; ok {
 					result.Groups[i].Icon = icon
 				}
 			}
@@ -189,10 +220,18 @@ func FromConfigStruct(cfg *config.ChangelogGeneratorConfig) *Config {
 			Format:  cfg.Contributors.Format,
 			Icon:    cfg.Contributors.Icon,
 		}
+		// Apply default contributor icon if UseDefaultIcons is true and no custom icon is set
+		if cfg.UseDefaultIcons && result.Contributors.Icon == "" {
+			result.Contributors.Icon = DefaultContributorIcon
+		}
 	} else {
 		result.Contributors = &ContributorsConfig{
 			Enabled: true,
 			Format:  "- {{.Name}} ([@{{.Username}}](https://{{.Host}}/{{.Username}}))",
+		}
+		// Apply default contributor icon if UseDefaultIcons is true
+		if cfg.UseDefaultIcons {
+			result.Contributors.Icon = DefaultContributorIcon
 		}
 	}
 
