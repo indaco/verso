@@ -648,7 +648,7 @@ func TestCreateConfigFile(t *testing.T) {
 		tmp := t.TempDir()
 		t.Chdir(tmp)
 
-		created, err := createConfigFile([]string{"commit-parser"}, false)
+		created, err := createConfigFile(".version", []string{"commit-parser"}, false)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -671,7 +671,7 @@ func TestCreateConfigFile(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		created, err := createConfigFile([]string{"commit-parser", "tag-manager"}, true)
+		created, err := createConfigFile(".version", []string{"commit-parser", "tag-manager"}, true)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -978,7 +978,7 @@ func TestCreateConfigFile_NonInteractiveSkipsExisting(t *testing.T) {
 	}
 
 	// In test environment (non-interactive), should skip without force
-	created, err := createConfigFile([]string{"commit-parser"}, false)
+	created, err := createConfigFile(".version", []string{"commit-parser"}, false)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1005,7 +1005,7 @@ func TestCreateConfigFile_WriteFails(t *testing.T) {
 
 	t.Chdir(readOnlyDir)
 
-	_, err := createConfigFile([]string{"commit-parser"}, false)
+	_, err := createConfigFile(".version", []string{"commit-parser"}, false)
 	if err == nil {
 		t.Fatal("expected error when writing to read-only directory")
 	}

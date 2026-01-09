@@ -9,7 +9,7 @@ import (
 )
 
 func TestGenerateConfigWithComments_Empty(t *testing.T) {
-	data, err := GenerateConfigWithComments([]string{})
+	data, err := GenerateConfigWithComments(".version", []string{})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -26,7 +26,7 @@ func TestGenerateConfigWithComments_Empty(t *testing.T) {
 }
 
 func TestGenerateConfigWithComments_CommitParser(t *testing.T) {
-	data, err := GenerateConfigWithComments([]string{"commit-parser"})
+	data, err := GenerateConfigWithComments(".version", []string{"commit-parser"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -54,7 +54,7 @@ func TestGenerateConfigWithComments_CommitParser(t *testing.T) {
 }
 
 func TestGenerateConfigWithComments_TagManager(t *testing.T) {
-	data, err := GenerateConfigWithComments([]string{"tag-manager"})
+	data, err := GenerateConfigWithComments(".version", []string{"tag-manager"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -81,7 +81,7 @@ func TestGenerateConfigWithComments_MultiplePlugins(t *testing.T) {
 		"dependency-check",
 	}
 
-	data, err := GenerateConfigWithComments(plugins)
+	data, err := GenerateConfigWithComments(".version", plugins)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -122,7 +122,7 @@ func TestGenerateConfigWithComments_AllPlugins(t *testing.T) {
 		"audit-log",
 	}
 
-	data, err := GenerateConfigWithComments(plugins)
+	data, err := GenerateConfigWithComments(".version", plugins)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -166,23 +166,37 @@ func verifyAllPluginsEnabled(t *testing.T, plugins *config.PluginConfig) {
 }
 
 func TestGenerateConfigWithComments_PathField(t *testing.T) {
-	data, err := GenerateConfigWithComments([]string{"commit-parser"})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+	tests := []struct {
+		name     string
+		path     string
+		wantPath string
+	}{
+		{"default path", ".version", ".version"},
+		{"custom path", "internal/version/.version", "internal/version/.version"},
+		{"custom directory", "custom/path/.version", "custom/path/.version"},
 	}
 
-	var cfg config.Config
-	if err := yaml.Unmarshal(data, &cfg); err != nil {
-		t.Fatalf("failed to parse generated config: %v", err)
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			data, err := GenerateConfigWithComments(tt.path, []string{"commit-parser"})
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
 
-	if cfg.Path != ".version" {
-		t.Errorf("expected path to be '.version', got %q", cfg.Path)
+			var cfg config.Config
+			if err := yaml.Unmarshal(data, &cfg); err != nil {
+				t.Fatalf("failed to parse generated config: %v", err)
+			}
+
+			if cfg.Path != tt.wantPath {
+				t.Errorf("expected path to be %q, got %q", tt.wantPath, cfg.Path)
+			}
+		})
 	}
 }
 
 func TestGenerateConfigWithComments_HeaderComments(t *testing.T) {
-	data, err := GenerateConfigWithComments([]string{"commit-parser"})
+	data, err := GenerateConfigWithComments(".version", []string{"commit-parser"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -205,7 +219,7 @@ func TestGenerateConfigWithComments_HeaderComments(t *testing.T) {
 
 func TestGenerateConfigWithComments_InlineComments(t *testing.T) {
 	plugins := []string{"commit-parser", "tag-manager"}
-	data, err := GenerateConfigWithComments(plugins)
+	data, err := GenerateConfigWithComments(".version", plugins)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

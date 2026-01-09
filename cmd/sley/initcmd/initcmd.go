@@ -96,7 +96,7 @@ func runInitCmd(cmd *cli.Command) error {
 	}
 
 	// Step 4: Create .sley.yaml configuration
-	configCreated, err := createConfigFile(selectedPlugins, forceFlag)
+	configCreated, err := createConfigFile(path, selectedPlugins, forceFlag)
 	if err != nil {
 		return err
 	}
@@ -241,7 +241,7 @@ func parseEnableFlag(enableFlag string) []string {
 
 // createConfigFile generates and writes the .sley.yaml configuration file.
 // Returns true if created, false if skipped due to existing file.
-func createConfigFile(selectedPlugins []string, forceFlag bool) (bool, error) {
+func createConfigFile(versionPath string, selectedPlugins []string, forceFlag bool) (bool, error) {
 	configPath := ".sley.yaml"
 
 	// Check if config already exists
@@ -263,7 +263,7 @@ func createConfigFile(selectedPlugins []string, forceFlag bool) (bool, error) {
 	}
 
 	// Generate config with comments
-	configData, err := GenerateConfigWithComments(selectedPlugins)
+	configData, err := GenerateConfigWithComments(versionPath, selectedPlugins)
 	if err != nil {
 		return false, fmt.Errorf("failed to generate config: %w", err)
 	}
