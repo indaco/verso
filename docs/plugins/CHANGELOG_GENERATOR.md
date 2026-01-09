@@ -31,9 +31,7 @@ Built-in, **disabled by default**
 
 ## Why Another Changelog Generator?
 
-Excellent standalone tools like [changie](https://changie.dev/) and [git-cliff](https://git-cliff.org/) already exist. The changelog-generator plugin was built into sley for a simpler reason: **convenience for projects already using sley**.
-
-When you're using sley for version management, having changelog generation as a built-in plugin means:
+Excellent standalone tools like [changie](https://changie.dev/) and [git-cliff](https://git-cliff.org/) already exist. The changelog-generator plugin exists because sley aims to be a **unified versioning tool** - one tool that handles `.version` files across any language or stack, with changelog generation as part of that workflow.
 
 - **One tool, one workflow**: `sley bump patch` handles version update, changelog, and tag in sequence
 - **Shared configuration**: Everything lives in `.sley.yaml`
