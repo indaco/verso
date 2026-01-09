@@ -1288,9 +1288,14 @@ func TestWriteNewContributorEntry_WithoutPR(t *testing.T) {
 	if !strings.Contains(result, "newdev") {
 		t.Error("expected username in output")
 	}
-	// Should contain commit hash when no PR number
+	// Should contain commit hash as a link when no PR number
 	if !strings.Contains(result, "abc123") {
 		t.Error("expected commit hash in output when no PR number")
+	}
+	// Verify commit hash is linked
+	expectedCommitLink := "[abc123](https://github.com/owner/repo/commit/abc123)"
+	if !strings.Contains(result, expectedCommitLink) {
+		t.Errorf("expected commit hash link %q in output, got: %s", expectedCommitLink, result)
 	}
 }
 
@@ -1398,8 +1403,14 @@ func TestWriteNewContributorFallback_WithoutPR(t *testing.T) {
 		PRNumber:    "",
 	}
 
+	remote := &RemoteInfo{
+		Host:  "github.com",
+		Owner: "owner",
+		Repo:  "repo",
+	}
+
 	var sb strings.Builder
-	g.writeNewContributorFallback(&sb, &nc, &RemoteInfo{Host: "github.com"})
+	g.writeNewContributorFallback(&sb, &nc, remote)
 	result := sb.String()
 
 	if !strings.Contains(result, "@newdev") {
@@ -1407,6 +1418,11 @@ func TestWriteNewContributorFallback_WithoutPR(t *testing.T) {
 	}
 	if !strings.Contains(result, "first contribution") {
 		t.Error("expected 'first contribution' in fallback output")
+	}
+	// Verify commit hash is linked in fallback
+	expectedCommitLink := "[abc123](https://github.com/owner/repo/commit/abc123)"
+	if !strings.Contains(result, expectedCommitLink) {
+		t.Errorf("expected commit hash link %q in fallback output, got: %s", expectedCommitLink, result)
 	}
 }
 
