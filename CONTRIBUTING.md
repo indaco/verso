@@ -24,10 +24,11 @@ To set up a development environment for this repository, you can use [devbox](ht
 
 If you prefer not to use Devbox, ensure you have the following tools installed:
 
-- [Go](https://go.dev/dl/) (1.24 or later)
+- [Go](https://go.dev/dl/) (1.25 or later)
 - [just](https://github.com/casey/just): Command runner for project tasks
 - [golangci-lint](https://golangci-lint.run/): For linting Go code
 - [modernize](https://pkg.go.dev/golang.org/x/tools/gopls/internal/analysis/modernize): Run the modernizer analyzer to simplify code
+- [govulncheck](https://pkg.go.dev/golang.org/x/vuln/cmd/govulncheck): Reports known vulnerabilities that affect Go code
 
 Optional tools:
 
