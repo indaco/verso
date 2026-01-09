@@ -9,10 +9,11 @@ import (
 )
 
 // GenerateConfigWithComments creates a Config struct and returns it as YAML with helpful comments.
+// The path parameter specifies the .version file path to use in the config.
 // The selectedPlugins parameter should contain the names of plugins to enable.
-func GenerateConfigWithComments(selectedPlugins []string) ([]byte, error) {
+func GenerateConfigWithComments(path string, selectedPlugins []string) ([]byte, error) {
 	cfg := &config.Config{
-		Path: ".version",
+		Path: path,
 	}
 
 	// Create plugins config based on selections
