@@ -13,6 +13,7 @@ plugins:
     enabled: true
     require-clean-worktree: true
     blocked-on-wip-commits: true
+    require-ci-pass: false  # Set to true to require passing CI checks before bumps
     allowed-branches:
       - "main"
       - "release/*"
