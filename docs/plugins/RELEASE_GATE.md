@@ -43,6 +43,7 @@ plugins:
     enabled: true
     require-clean-worktree: true
     blocked-on-wip-commits: true
+    require-ci-pass: false # Set to true to block bumps if CI is failing
     allowed-branches:
       - "main"
       - "release/*"
@@ -55,8 +56,9 @@ plugins:
 | Option                   | Type     | Default | Description                                                     |
 | ------------------------ | -------- | ------- | --------------------------------------------------------------- |
 | `enabled`                | bool     | false   | Enable/disable the plugin                                       |
-| `require-clean-worktree` | bool     | true    | Block bumps if git has uncommitted changes                      |
-| `blocked-on-wip-commits` | bool     | true    | Block if recent commits contain WIP/fixup/squash                |
+| `require-clean-worktree` | bool     | false   | Block bumps if git has uncommitted changes                      |
+| `blocked-on-wip-commits` | bool     | false   | Block if recent commits contain WIP/fixup/squash                |
+| `require-ci-pass`        | bool     | false   | Check CI status before allowing bumps (disabled by default)     |
 | `allowed-branches`       | []string | []      | Branches where bumps are allowed (empty = all branches allowed) |
 | `blocked-branches`       | []string | []      | Branches where bumps are never allowed (takes precedence)       |
 

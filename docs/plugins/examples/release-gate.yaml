@@ -27,6 +27,10 @@ plugins:
     # Detected markers: WIP, fixup!, squash!, DO NOT MERGE, DNM
     blocked-on-wip-commits: true
 
+    # Check CI status before allowing bumps (disabled by default)
+    # Set to true to require passing CI checks before version bumps
+    # require-ci-pass: false
+
     # Only allow bumps from these branches (supports glob patterns)
     allowed-branches:
       - "main"
@@ -45,6 +49,7 @@ plugins:
 #     enabled: true
 #     require-clean-worktree: true
 #     blocked-on-wip-commits: true
+#     require-ci-pass: true  # Enforce passing CI checks
 #     allowed-branches:
 #       - "main"
 #     blocked-branches:

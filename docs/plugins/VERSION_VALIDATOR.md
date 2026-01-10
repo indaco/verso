@@ -118,6 +118,20 @@ rules:
     enabled: true # Maintenance mode: only minor/patch
 ```
 
+### Selectively Disabling Rules
+
+You can disable individual rules using the `enabled` field:
+
+```yaml
+rules:
+  - type: "pre-release-format"
+    pattern: "^(alpha|beta|rc)(\\.[0-9]+)?$"
+    enabled: false  # Temporarily disable this rule
+  - type: "major-version-max"
+    value: 10
+    enabled: true   # This rule is active
+```
+
 ## Integration with Other Plugins
 
 The version validator runs **before** other plugins:
