@@ -4,6 +4,68 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The changelog is generated and managed by [sley](https://github.com/indaco/sley).
 
+## v0.7.0 - 2026-01-13
+
+### 🚀 Enhancements
+
+- **cli:** add tag command with create/list/push/delete subcommands and ([154cd25](https://github.com/indaco/sley/commit/154cd25))
+- **tagmanager:** change auto-create and tag-prereleases defaults to false ([73ad90a](https://github.com/indaco/sley/commit/73ad90a))
+- **tagmanager:** implement ListTags, DeleteTag, DeleteRemoteTag on OSGitTagOperations ([5009d15](https://github.com/indaco/sley/commit/5009d15))
+- **core:** extend GitTagOperations interface with list and delete methods ([cc01ccd](https://github.com/indaco/sley/commit/cc01ccd))
+- **changelog:** add merge-after config and improve CLI feedback ([256c0ec](https://github.com/indaco/sley/commit/256c0ec)) ([#132](https://github.com/indaco/sley/pull/132))
+- **tagmanager:** add option to control git tags creation for pre-release versions ([9c170ab](https://github.com/indaco/sley/commit/9c170ab)) ([#127](https://github.com/indaco/sley/pull/127))
+- **changelog:** add option to set custom icon for breaking changes ([fa2e994](https://github.com/indaco/sley/commit/fa2e994)) ([#125](https://github.com/indaco/sley/pull/125))
+- **changelog:** add Minimal release format ([4899b71](https://github.com/indaco/sley/commit/4899b71)) ([#122](https://github.com/indaco/sley/pull/122))
+- **changelog:** add GitHub release format with breaking changes section ([7fe4a3c](https://github.com/indaco/sley/commit/7fe4a3c)) ([#121](https://github.com/indaco/sley/pull/121))
+
+### 🩹 Fixes
+
+- **bumpcmd:** add missing extension hooks to auto and release commands ([d2681c5](https://github.com/indaco/sley/commit/d2681c5)) ([#138](https://github.com/indaco/sley/pull/138))
+- **extensionmgr:** respect --extension-dir when set to "." ([ec9f4ed](https://github.com/indaco/sley/commit/ec9f4ed)) ([#136](https://github.com/indaco/sley/pull/136))
+- **bumpcmd:** add missing tag creation for bump auto command ([c3c9974](https://github.com/indaco/sley/commit/c3c9974)) ([#134](https://github.com/indaco/sley/pull/134))
+
+### 💅 Refactors
+
+- **releasegate:** remove function variables and use interfaces ([258926b](https://github.com/indaco/sley/commit/258926b)) ([#147](https://github.com/indaco/sley/pull/147))
+- **versionvalidator:** add max-prerelease-iterations and require-even-minor rules ([298c1fe](https://github.com/indaco/sley/commit/298c1fe)) ([#145](https://github.com/indaco/sley/pull/145))
+- **tagmanager:** add GPG signing and message templates, remove git-tagger extension ([d620e73](https://github.com/indaco/sley/commit/d620e73))
+
+### 📖 Documentation
+
+- update tag manager documentation and README ([07834b1](https://github.com/indaco/sley/commit/07834b1))
+- update extensions documentation ([0fd5f41](https://github.com/indaco/sley/commit/0fd5f41)) ([#146](https://github.com/indaco/sley/pull/146))
+- **plugins:** normalize plugin type fields and remove Version row ([5398d15](https://github.com/indaco/sley/commit/5398d15)) ([#131](https://github.com/indaco/sley/pull/131))
+- **plugins:** consistent and minimal example files ([328531b](https://github.com/indaco/sley/commit/328531b)) ([#129](https://github.com/indaco/sley/pull/129))
+- **plugin:** add missing config options for plugins and example files ([59ff8b6](https://github.com/indaco/sley/commit/59ff8b6)) ([#126](https://github.com/indaco/sley/pull/126))
+- clarify how to get PR links in the changelog ([3c4c6fd](https://github.com/indaco/sley/commit/3c4c6fd)) ([#120](https://github.com/indaco/sley/pull/120))
+- rephrased intro for changelog generator ([8c26357](https://github.com/indaco/sley/commit/8c26357))
+- improve documentation consistency ([ab60933](https://github.com/indaco/sley/commit/ab60933))
+
+### 🎨 Styling
+
+- normalize dashes and spacing in devbox-init.sh script ([e930a2e](https://github.com/indaco/sley/commit/e930a2e))
+
+### ✅ Tests
+
+- **validator:** extracted validVersionValidatorRuleTypes to package-level map for tests semplification ([9b3d28c](https://github.com/indaco/sley/commit/9b3d28c))
+
+### 🏡 Chores
+
+- update sley config file ([690e145](https://github.com/indaco/sley/commit/690e145))
+- consolidate package-sync extension into dependencycheck plugin ([ca7c23b](https://github.com/indaco/sley/commit/ca7c23b)) ([#144](https://github.com/indaco/sley/pull/144))
+- update sley config file and gitignore ([080a306](https://github.com/indaco/sley/commit/080a306)) ([#139](https://github.com/indaco/sley/pull/139))
+- **config:** disable automatic tag-manager plugin in sley config ([f363b84](https://github.com/indaco/sley/commit/f363b84))
+
+### 🤖 CI
+
+- **release:** migrate from brews to homebrew_casks in goreleaser config ([8597757](https://github.com/indaco/sley/commit/8597757))
+
+**Full Changelog:** [v0.6.0...v0.7.0](https://github.com/indaco/sley/compare/v0.6.0...v0.7.0)
+
+### ❤️ Contributors
+
+- [@indaco](https://github.com/indaco)
+
 ## v0.6.0 - 2026-01-09
 
 ### 🚀 Enhancements
